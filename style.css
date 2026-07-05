@@ -6,11 +6,14 @@ body {
     background-color: #f4f4f4;
 }
 
-header {
+header, footer {
     background: #333;
     color: #fff;
-    padding: 20px 0;
     text-align: center;
+}
+
+header {
+    padding: 20px 0;
 }
 
 .tagline {
@@ -30,12 +33,9 @@ main {
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgb(0 0 0 / 10%);
 }
 
 footer {
-    text-align: center;
     padding: 10px 0;
-    background: #333;
-    color: #fff;
 }
