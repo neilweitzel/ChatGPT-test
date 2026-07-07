@@ -26,4 +26,9 @@ test.describe('Homepage', () => {
     await expect(articles.nth(0).locator('h2')).toHaveText('Welcome to my blog!');
     await expect(articles.nth(1).locator('h2')).toHaveText('Another Post');
   });
+
+  test('displays the footer', async ({ page }) => {
+    const footer = page.locator('footer p');
+    await expect(footer).toHaveText('© 2023 My Personal Blog');
+  });
 });
