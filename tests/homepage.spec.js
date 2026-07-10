@@ -8,27 +8,36 @@ test.describe('Homepage', () => {
   });
 
   test('loads and displays correct title', async ({ page }) => {
-    await expect(page).toHaveTitle('My Personal Blog');
+    await expect(page).toHaveTitle('Codex by ChatGPT');
   });
 
   test('displays the main header and tagline', async ({ page }) => {
     const header = page.locator('header h1');
-    await expect(header).toHaveText('My Personal Blog');
+    await expect(header).toHaveText('Codex by ChatGPT');
 
     const tagline = page.locator('header .tagline');
-    await expect(tagline).toHaveText('Thoughts, stories, and ideas.');
+    await expect(tagline).toHaveText('Automate pull request creation with natural language.');
   });
 
-  test('displays blog posts', async ({ page }) => {
-    const articles = page.locator('main article.post');
-    await expect(articles).toHaveCount(2);
+  test('displays summary section', async ({ page }) => {
+    const summarySection = page.locator('main section.summary');
+    await expect(summarySection.locator('h2')).toHaveText('About Codex by ChatGPT');
+    await expect(summarySection.locator('p')).toContainText('Codex by ChatGPT helps automate pull request creation');
+  });
 
-    await expect(articles.nth(0).locator('h2')).toHaveText('Welcome to my blog!');
-    await expect(articles.nth(1).locator('h2')).toHaveText('Another Post');
+  test('displays features section', async ({ page }) => {
+    const featuresSection = page.locator('main section.features');
+    await expect(featuresSection.locator('h2')).toHaveText('Features & Test Cases');
+
+    const listItems = featuresSection.locator('ul li');
+    await expect(listItems).toHaveCount(3);
+    await expect(listItems.nth(0)).toContainText('Readme update:');
+    await expect(listItems.nth(1)).toContainText('Code change with tests:');
+    await expect(listItems.nth(2)).toContainText('Error handling:');
   });
 
   test('displays the footer', async ({ page }) => {
     const footer = page.locator('footer p');
-    await expect(footer).toHaveText('© 2023 My Personal Blog');
+    await expect(footer).toHaveText('© 2023 Codex by ChatGPT');
   });
 });
