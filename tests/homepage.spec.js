@@ -40,4 +40,9 @@ test.describe('Homepage', () => {
     const footer = page.locator('footer p');
     await expect(footer).toHaveText('© 2023 Codex by ChatGPT');
   });
+
+  test('loads stylesheet and applies styles', async ({ page }) => {
+    const body = page.locator('body');
+    await expect(body).toHaveCSS('background-color', 'rgb(243, 244, 246)');
+  });
 });
