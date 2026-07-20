@@ -1,6 +1,7 @@
 :root {
     --primary-color: #2563eb;
     --text-color: #1f2937;
+    --secondary-text-color: #6b7280;
     --bg-color: #f3f4f6;
     --card-bg: #ffffff;
 }
@@ -33,7 +34,7 @@ header h1 {
 .tagline {
     margin-top: 10px;
     font-size: 1.2rem;
-    color: #6b7280;
+    color: var(--secondary-text-color);
 }
 
 main {
