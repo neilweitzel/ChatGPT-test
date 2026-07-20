@@ -8,6 +8,17 @@ test.describe('Homepage', () => {
     await page.goto(filePath);
   });
 
+  test('includes correct meta and link tags', async ({ page }) => {
+    const charsetMeta = page.locator('meta[charset="UTF-8"]');
+    await expect(charsetMeta).toHaveCount(1);
+
+    const viewportMeta = page.locator('meta[name="viewport"]');
+    await expect(viewportMeta).toHaveAttribute('content', 'width=device-width, initial-scale=1.0');
+
+    const stylesheetLink = page.locator('link[rel="stylesheet"]');
+    await expect(stylesheetLink).toHaveAttribute('href', 'style.css');
+  });
+
   test('loads and displays correct title', async ({ page }) => {
     await expect(page).toHaveTitle('Codex by ChatGPT');
   });
