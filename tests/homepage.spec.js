@@ -41,6 +41,22 @@ test.describe('Homepage', () => {
     await expect(footer).toHaveText('© 2023 Codex by ChatGPT');
   });
 
+  test('is responsive on mobile viewports', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+
+    const header = page.locator('header h1');
+    await expect(header).toBeVisible();
+
+    const summarySection = page.locator('main section.summary');
+    await expect(summarySection).toBeVisible();
+
+    const featuresSection = page.locator('main section.features');
+    await expect(featuresSection).toBeVisible();
+
+    const footer = page.locator('footer p');
+    await expect(footer).toBeVisible();
+  });
+
   test('loads stylesheet and applies styles', async ({ page }) => {
     const body = page.locator('body');
     await expect(body).toHaveCSS('background-color', 'rgb(243, 244, 246)');
