@@ -30,10 +30,15 @@ test.describe('Homepage', () => {
     await expect(featuresSection.locator('h2')).toHaveText('Features & Test Cases');
 
     const listItems = featuresSection.locator('ul li');
-    await expect(listItems).toHaveCount(3);
-    await expect(listItems.nth(0)).toContainText('Readme update:');
-    await expect(listItems.nth(1)).toContainText('Code change with tests:');
-    await expect(listItems.nth(2)).toContainText('Error handling:');
+    const expectedTexts = [
+      'Readme update:',
+      'Code change with tests:',
+      'Error handling:'
+    ];
+    await expect(listItems).toHaveCount(expectedTexts.length);
+    for (let i = 0; i < expectedTexts.length; i++) {
+      await expect(listItems.nth(i)).toContainText(expectedTexts[i]);
+    }
   });
 
   test('displays the footer', async ({ page }) => {
