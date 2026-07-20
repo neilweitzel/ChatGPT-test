@@ -1,9 +1,10 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
 
+const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
+
 test.describe('Homepage', () => {
   test.beforeEach(async ({ page }) => {
-    const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
     await page.goto(filePath);
   });
 
