@@ -31,6 +31,13 @@ test.describe('Computed Styles', () => {
     await expect(h2).toHaveCSS('color', 'rgb(37, 99, 235)');
   });
 
+  test('footer has correct styling', async ({ page }) => {
+    const footer = page.locator('footer');
+    await expect(footer).toHaveCSS('background-color', 'rgb(31, 41, 55)'); // var(--text-color)
+    await expect(footer).toHaveCSS('color', 'rgb(255, 255, 255)'); // #fff
+    await expect(footer).toHaveCSS('text-align', 'center');
+  });
+
   test('visual regression test', async ({ page }) => {
     await expect(page).toHaveScreenshot('homepage.png');
   });
