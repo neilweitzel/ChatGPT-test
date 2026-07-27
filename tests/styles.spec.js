@@ -1,10 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
 
+const FILE_PATH = `file://${path.resolve(__dirname, '../index.html')}`;
+
 test.describe('Computed Styles', () => {
   test.beforeEach(async ({ page }) => {
-    const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
-    await page.goto(filePath);
+    await page.goto(FILE_PATH);
   });
 
   test('body has correct background and text color', async ({ page }) => {

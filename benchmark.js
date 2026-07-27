@@ -1,21 +1,21 @@
 const path = require('path');
-const { performance } = require('perf_hooks');
 
-const iterations = 1000000;
+const iterations = 10000;
+let start, end;
 
-// Baseline
-const startBaseline = performance.now();
+// Inside hook performance simulation
+start = performance.now();
 for (let i = 0; i < iterations; i++) {
   const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
 }
-const endBaseline = performance.now();
-console.log(`Baseline (resolve path every time): ${endBaseline - startBaseline} ms`);
+end = performance.now();
+console.log(`Inside hook (resolving path every time): ${(end - start).toFixed(2)} ms for ${iterations} iterations`);
 
-// Optimized
-const startOptimized = performance.now();
+// Outside hook performance simulation
+start = performance.now();
 const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
 for (let i = 0; i < iterations; i++) {
-  const f = filePath;
+  const p = filePath;
 }
-const endOptimized = performance.now();
-console.log(`Optimized (cached path): ${endOptimized - startOptimized} ms`);
+end = performance.now();
+console.log(`Outside hook (cached path): ${(end - start).toFixed(2)} ms for ${iterations} iterations`);
