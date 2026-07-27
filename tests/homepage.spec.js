@@ -8,12 +8,20 @@ test.describe('Homepage', () => {
     await page.goto(filePath);
   });
 
+  test('has correct html lang attribute', async ({ page }) => {
+    const html = page.locator('html');
+    await expect(html).toHaveAttribute('lang', 'en');
+  });
+
   test('includes correct meta and link tags', async ({ page }) => {
     const charsetMeta = page.locator('meta[charset="UTF-8"]');
     await expect(charsetMeta).toHaveCount(1);
 
     const viewportMeta = page.locator('meta[name="viewport"]');
     await expect(viewportMeta).toHaveAttribute('content', 'width=device-width, initial-scale=1.0');
+
+    const cspMeta = page.locator('meta[http-equiv="Content-Security-Policy"]');
+    await expect(cspMeta).toHaveAttribute('content', "default-src 'self';");
 
     const stylesheetLink = page.locator('link[rel="stylesheet"]');
     await expect(stylesheetLink).toHaveAttribute('href', 'style.css');
