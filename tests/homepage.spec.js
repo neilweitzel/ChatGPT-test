@@ -8,6 +8,11 @@ test.describe('Homepage', () => {
     await page.goto(filePath);
   });
 
+  test('has correct html lang attribute', async ({ page }) => {
+    const html = page.locator('html');
+    await expect(html).toHaveAttribute('lang', 'en');
+  });
+
   test('includes correct meta and link tags', async ({ page }) => {
     const charsetMeta = page.locator('meta[charset="UTF-8"]');
     await expect(charsetMeta).toHaveCount(1);
