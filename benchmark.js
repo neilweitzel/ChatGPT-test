@@ -6,7 +6,7 @@ const iterations = 1000000;
 // Baseline
 const startBaseline = performance.now();
 for (let i = 0; i < iterations; i++) {
-  const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
+  `file://${path.resolve(__dirname, '../index.html')}`;
 }
 const endBaseline = performance.now();
 console.log(`Baseline (resolve path every time): ${endBaseline - startBaseline} ms`);
@@ -15,7 +15,7 @@ console.log(`Baseline (resolve path every time): ${endBaseline - startBaseline} 
 const startOptimized = performance.now();
 const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
 for (let i = 0; i < iterations; i++) {
-  const f = filePath;
+  filePath;
 }
 const endOptimized = performance.now();
 console.log(`Optimized (cached path): ${endOptimized - startOptimized} ms`);
