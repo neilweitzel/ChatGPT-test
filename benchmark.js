@@ -15,7 +15,6 @@ console.log(`Inside hook (resolving path every time): ${(end - start).toFixed(2)
 start = performance.now();
 const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
 for (let i = 0; i < iterations; i++) {
-  const p = filePath;
 }
 end = performance.now();
 console.log(`Outside hook (cached path): ${(end - start).toFixed(2)} ms for ${iterations} iterations`);
