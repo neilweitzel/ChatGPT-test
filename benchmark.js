@@ -5,8 +5,9 @@ let start, end;
 
 // Inside hook performance simulation
 start = performance.now();
+const resolvedInsidePath = `file://${path.resolve(__dirname, '../index.html')}`;
 for (let i = 0; i < iterations; i++) {
-  const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
+  const filePath = resolvedInsidePath;
 }
 end = performance.now();
 console.log(`Inside hook (resolving path every time): ${(end - start).toFixed(2)} ms for ${iterations} iterations`);
