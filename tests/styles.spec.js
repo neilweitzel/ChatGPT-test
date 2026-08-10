@@ -1,7 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const path = require('path');
-
-const FILE_PATH = `file://${path.resolve(__dirname, '../index.html')}`;
+const { FILE_PATH } = require('./utils');
 
 test.describe('Computed Styles', () => {
   test.beforeEach(async ({ page }) => {
