@@ -1,11 +1,9 @@
 const { test, expect } = require('@playwright/test');
-const path = require('path');
-
-const filePath = `file://${path.resolve(__dirname, '../index.html')}`;
+const { INDEX_FILE_PATH } = require('./utils');
 
 test.describe('Homepage', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(filePath);
+    await page.goto(INDEX_FILE_PATH);
   });
 
   test('has correct html lang attribute', async ({ page }) => {
