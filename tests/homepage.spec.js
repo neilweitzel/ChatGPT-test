@@ -56,9 +56,9 @@ test.describe('Homepage', () => {
       'Error handling:'
     ];
     await expect(listItems).toHaveCount(expectedTexts.length);
-    for (let i = 0; i < expectedTexts.length; i++) {
-      await expect(listItems.nth(i)).toContainText(expectedTexts[i]);
-    }
+    await Promise.all(
+      expectedTexts.map((text, i) => expect(listItems.nth(i)).toContainText(text))
+    );
   });
 
   test('displays the footer', async ({ page }) => {
