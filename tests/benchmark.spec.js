@@ -19,8 +19,8 @@ test.describe('benchmark.js', () => {
     expect(stderr).toBe('');
 
     // Verify stdout contains expected baseline and optimized output
-    expect(stdout).toContain('Baseline (resolve path every time):');
-    expect(stdout).toContain('Optimized (cached path):');
+    expect(stdout).toContain('Inside hook (resolving path every time):');
+    expect(stdout).toContain('Outside hook (cached path):');
     expect(stdout).toContain('ms');
   });
 });
