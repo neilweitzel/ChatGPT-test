@@ -6,6 +6,10 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/**
+ * End-to-end tests validating the rendering and interaction of SVGs within the charts component.
+ * It simulates a file drop and asserts visual state and interactive tooltips.
+ */
 test.describe('Charts rendering', () => {
   test.beforeEach(async ({ page }) => {
     // Clear IndexedDB

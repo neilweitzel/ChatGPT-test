@@ -1,6 +1,12 @@
 import { computeLeaderboard, formatTime } from '../lib/stats.js';
 import { renderCharts } from './charts.js';
 
+/**
+ * Computes and renders a leaderboard table for a specific session into the given container.
+ * Also delegates to the charts renderer.
+ * @param {HTMLElement} container - The DOM element where the leaderboard will be injected.
+ * @param {Object} session - The session object containing track and driver lap data.
+ */
 export function renderLeaderboard(container, session) {
   const stats = computeLeaderboard(session);
   if (!stats || stats.drivers.length === 0) {
