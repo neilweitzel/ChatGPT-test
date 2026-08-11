@@ -1,9 +1,8 @@
 const { test, expect } = require('@playwright/test');
-const { FILE_PATH } = require('./utils');
 
 test.describe('Homepage', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(FILE_PATH);
+    await page.goto('/');
   });
 
   test('has correct html lang attribute', async ({ page }) => {
@@ -22,7 +21,7 @@ test.describe('Homepage', () => {
     await expect(cspMeta).toHaveAttribute('content', "default-src 'self';");
 
     const stylesheetLink = page.locator('link[rel="stylesheet"]');
-    await expect(stylesheetLink).toHaveAttribute('href', 'style.css');
+    await expect(stylesheetLink).toHaveAttribute('href', 'styles/style.css');
   });
 
   test('loads and displays correct title', async ({ page }) => {
