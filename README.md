@@ -1,13 +1,15 @@
-# ChatGPT-test
-Testing Codex
+# Apex
 
-## About Codex by ChatGPT
-Codex by ChatGPT helps automate pull request creation by understanding your instructions and making code changes in a Git repository. It interprets natural language tasks and outputs git commits and PR summaries.
+## About Apex
+Apex is a client-side karting telemetry and leaderboard app.
 
-## Personal Blog Page
-A simple example of a personal blog can be found in `index.html`. Open this file in a web browser to see the blog layout. Feel free to modify the posts inside or style the page using `style.css`.
+## How to Run
+Since there is no build step, you can run the app by serving the root directory using any local web server (e.g., `npx serve .` or `python3 -m http.server`) and opening `index.html`.
 
-## Potential Test Cases
-- **Readme update:** Ensure documentation edits are captured and committed correctly.
-- **Code change with tests:** Verify that code modifications trigger associated tests or linting steps.
-- **Error handling:** Observe how Codex responds when test commands fail due to missing dependencies or network restrictions.
+## Testing
+To run tests, install dependencies and use Playwright:
+```bash
+npm install
+npx playwright install
+npm run test
+```
