@@ -86,3 +86,54 @@ footer {
     text-align: center;
     margin: 20px 0;
 }
+
+/* Leaderboard Table Styles */
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    margin-bottom: 30px;
+    background: var(--card-bg);
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    border: 1px solid #e5e7eb;
+    padding: 12px;
+    text-align: left;
+}
+
+.leaderboard-table th {
+    background-color: var(--bg-color);
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    outline: none;
+}
+
+.leaderboard-table th:focus {
+    box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+
+.leaderboard-table th[aria-sort="ascending"]::after {
+    content: " ▲";
+    font-size: 0.8em;
+}
+
+.leaderboard-table th[aria-sort="descending"]::after {
+    content: " ▼";
+    font-size: 0.8em;
+}
+
+.overall-best {
+    background-color: #f3e8ff !important;
+    color: #7e22ce !important;
+    font-weight: bold;
+}
+
+.personal-best {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+    font-weight: bold;
+}

@@ -1,5 +1,6 @@
 import { parseCSV } from '../lib/parser.js';
 import { saveSessions, getSessions } from '../lib/db.js';
+import { renderLeaderboard } from './leaderboard.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const dropzone = document.getElementById('dropzone');
@@ -70,13 +71,9 @@ function renderSessions(sessions) {
     return;
   }
 
-  const ul = document.createElement('ul');
   sessions.forEach(session => {
-    const li = document.createElement('li');
-    li.textContent = `${session.track} - ${session.date} (${session.laps.length} laps)`;
-    ul.appendChild(li);
+    renderLeaderboard(resultsDiv, session);
   });
-  resultsDiv.appendChild(ul);
 }
 
 function renderErrors(errors) {
