@@ -1,0 +1,5 @@
+Track,Date,Driver,Lap,Time
+Monza,2023-10-01,Mario,,1:25.100
+Monza,2023-10-01,Mario,2,invalid
+Monza,2023-10-01,Mario,abc,84.900
+Monza,2023-10-01,Mario,4,

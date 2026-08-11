@@ -1,9 +1,8 @@
-const { test, expect } = require('@playwright/test');
-const { FILE_PATH } = require('./utils');
+import { test, expect } from '@playwright/test';
 
 test.describe('Computed Styles', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(FILE_PATH);
+    await page.goto('/');
   });
 
   test('body has correct background and text color', async ({ page }) => {
