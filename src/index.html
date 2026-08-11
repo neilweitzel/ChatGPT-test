@@ -4,34 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self';">
-    <title>Codex by ChatGPT</title>
+    <title>Apex Karting Telemetry</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
+    <!-- Header Section -->
     <header>
-        <h1>Codex by ChatGPT</h1>
-        <p class="tagline">Automate pull request creation with natural language.</p>
+        <h1>Apex Karting Telemetry</h1>
+        <p class="tagline">Analyze your karting performance with dynamic leaderboards and charts.</p>
     </header>
     <main>
+        <!-- Summary Section -->
         <section class="summary">
-            <h2>About Codex by ChatGPT</h2>
-            <p>Codex by ChatGPT helps automate pull request creation by understanding your instructions and making code changes in a Git repository. It interprets natural language tasks and outputs git commits and PR summaries.</p>
+            <h2>About Apex</h2>
+            <p>Apex is a client-side web application designed to parse, analyze, and visualize karting telemetry data. Upload your session data to uncover insights.</p>
         </section>
+        <!-- Features Section -->
         <section class="features">
-            <h2>Features & Test Cases</h2>
+            <h2>Features</h2>
             <ul>
-                <li><strong>Readme update:</strong> Ensure documentation edits are captured and committed correctly.</li>
-                <li><strong>Code change with tests:</strong> Verify that code modifications trigger associated tests or linting steps.</li>
-                <li><strong>Error handling:</strong> Observe how Codex responds when test commands fail due to missing dependencies or network restrictions.</li>
+                <li><strong>Local CSV Upload:</strong> Process telemetry data entirely on the client.</li>
+                <li><strong>Dynamic Leaderboard:</strong> View best laps, theoretical bests, median lap times, and consistency scores.</li>
+                <li><strong>Visualizations:</strong> Compare driver performance through lap trace and sector delta charts.</li>
             </ul>
         </section>
+        <!-- Application Section -->
         <section class="upload">
             <div id="dropzone">Drop CSV here</div>
             <div id="results"></div>
         </section>
     </main>
+    <!-- Footer Section -->
     <footer>
-        <p>&copy; 2023 Codex by ChatGPT</p>
+        <p>&copy; 2023 Apex Karting</p>
     </footer>
     <script type="module" src="ui/upload.js"></script>
 </body>

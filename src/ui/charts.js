@@ -1,5 +1,12 @@
 import { formatTime } from '../lib/stats.js';
 
+/**
+ * Main entry point for rendering charting components (lap trace and sector delta) into the given container.
+ * Also handles driver selection controls for the sector delta comparison.
+ * @param {HTMLElement} container - The DOM element where the charts section will be injected.
+ * @param {Object} session - The parsed session data containing laps.
+ * @param {Object} stats - The computed leaderboard stats for all drivers.
+ */
 export function renderCharts(container, session, stats) {
   if (!stats || stats.drivers.length === 0) return;
 
@@ -75,6 +82,14 @@ export function renderCharts(container, session, stats) {
   container.appendChild(section);
 }
 
+/**
+ * Renders a scatter/line plot of lap times over the course of a session.
+ * Visualizes consistency and flags statistical outliers.
+ * @param {HTMLElement} container - The DOM element where the SVG lap trace will be injected.
+ * @param {Object} session - The parsed session data containing laps.
+ * @param {Object} stats - The computed leaderboard stats.
+ * @param {Array<string>} colors - An array of hex color strings to assign to drivers.
+ */
 function renderLapTraceChart(container, session, stats, colors) {
   container.innerHTML = '<h4>Lap Trace</h4>';
 
@@ -264,6 +279,14 @@ function renderLapTraceChart(container, session, stats, colors) {
   container.appendChild(svg);
 }
 
+/**
+ * Renders a bar chart comparing the best sectors between two specific drivers.
+ * @param {HTMLElement} container - The DOM element where the SVG bar chart will be injected.
+ * @param {Object} session - The parsed session data containing laps.
+ * @param {Object} stats - The computed leaderboard stats.
+ * @param {string} driverA - The name of the first driver to compare.
+ * @param {string} driverB - The name of the second driver to compare against.
+ */
 function renderSectorDeltaChart(container, session, stats, driverA, driverB) {
   container.innerHTML = '';
   const h4 = document.createElement('h4');

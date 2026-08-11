@@ -1,7 +1,7 @@
 # Apex - Agent Guidelines
 
 ## What is Apex
-Apex is a client-side karting telemetry and leaderboard app.
+Apex is a client-side karting telemetry and leaderboard app. It handles parsing telemetry data, local CSV upload handling, robust data validation, and displaying dynamic leaderboard and charts.
 
 ## Project Conventions
 - **Language**: Vanilla JS with ES modules.

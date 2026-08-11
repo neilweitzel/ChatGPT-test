@@ -1,3 +1,9 @@
+/**
+ * Parses a string representing time into milliseconds.
+ * Handles formats like 'MM:SS.ms' or 'SS.ms'.
+ * @param {string} timeStr - The time string to parse.
+ * @returns {number|null} The time in milliseconds, or null if parsing fails.
+ */
 export function parseTime(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return null;
   const trimmed = timeStr.trim();
@@ -20,6 +26,12 @@ export function parseTime(timeStr) {
   return null;
 }
 
+/**
+ * Parses raw CSV text into a structured list of sessions and errors.
+ * Normalizes headers, handles line endings (CRLF), and groups laps by session.
+ * @param {string} text - The raw CSV text to parse.
+ * @returns {{ sessions: Array<Object>, errors: Array<Object> }} An object containing the parsed sessions array and any parsing errors encountered.
+ */
 export function parseCSV(text) {
   const sessions = new Map();
   const errors = [];
@@ -146,7 +158,11 @@ export function parseCSV(text) {
   return { sessions: sessionsArray, errors };
 }
 
-// Simple robust CSV line parser handling quotes
+/**
+ * Parses a single line of CSV text, taking into account quoted fields containing commas.
+ * @param {string} line - The single CSV line to parse.
+ * @returns {Array<string>} An array of parsed string values for the line's columns.
+ */
 function parseCSVLine(line) {
   const result = [];
   let current = '';

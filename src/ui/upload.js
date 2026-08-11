@@ -29,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+/**
+ * Reads a dropped CSV file, parses it, saves the sessions to IndexedDB, and updates the UI.
+ * @param {File} file - The file object to handle.
+ */
 function handleFile(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
@@ -52,6 +56,10 @@ function handleFile(file) {
   reader.readAsText(file);
 }
 
+/**
+ * Loads existing sessions from the database and renders them to the UI.
+ * @returns {Promise<void>} A promise that resolves when the sessions are loaded and rendered.
+ */
 async function loadExistingSessions() {
   try {
     const sessions = await getSessions();
@@ -61,6 +69,10 @@ async function loadExistingSessions() {
   }
 }
 
+/**
+ * Renders an array of sessions by passing them to the leaderboard renderer.
+ * @param {Array<Object>} sessions - The array of session objects to render.
+ */
 function renderSessions(sessions) {
   const resultsDiv = document.getElementById('results');
   if (!resultsDiv) return;
@@ -76,6 +88,10 @@ function renderSessions(sessions) {
   });
 }
 
+/**
+ * Renders any CSV parsing errors directly to the UI.
+ * @param {Array<Object>} errors - An array of error objects containing row and message info.
+ */
 function renderErrors(errors) {
   const resultsDiv = document.getElementById('results');
   if (!resultsDiv) return;

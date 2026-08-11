@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Basic health check to ensure the test server mounts the correct application context.
+ */
 test.describe('Guard test', () => {
   test('serves the correct Apex application instead of Codex placeholder', async ({ page }) => {
     await page.goto('/');

@@ -3,3 +3,4 @@ test-results/
 .env
 playwright-report/
 serve.log
+server.log

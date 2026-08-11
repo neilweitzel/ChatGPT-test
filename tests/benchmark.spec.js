@@ -9,6 +9,10 @@ const __dirname = path.dirname(__filename);
 
 const execPromise = util.promisify(exec);
 
+/**
+ * Validates that the standalone NodeJS benchmark script runs without errors
+ * and produces the expected performance analysis output.
+ */
 test.describe('benchmark.js', () => {
   test('executes benchmark script successfully and logs results', async () => {
     // Increase timeout since benchmark might take a bit

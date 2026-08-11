@@ -1,3 +1,8 @@
+/**
+ * Formats time in milliseconds into a readable string (e.g. '1:23.456' or '45.678').
+ * @param {number} ms - The time in milliseconds.
+ * @returns {string} The formatted time string.
+ */
 export function formatTime(ms) {
   if (ms === null || ms === undefined || isNaN(ms) || ms === Infinity) return '-';
   const isNegative = ms < 0;
@@ -20,6 +25,12 @@ export function formatTime(ms) {
   return isNegative ? `-${formatted}` : formatted;
 }
 
+/**
+ * Computes leaderboard statistics for a given session.
+ * Calculates best laps, median laps, consistency, and theoretical bests for all drivers.
+ * @param {Object} session - The parsed session object containing lap data.
+ * @returns {{ drivers: Array<Object>, overallBestLap: number|null, overallBestSectors: Array<number> }} The computed leaderboard data.
+ */
 export function computeLeaderboard(session) {
   const driverStats = new Map();
   let overallBestLap = Infinity;
