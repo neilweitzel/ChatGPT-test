@@ -86,13 +86,13 @@ test.describe('E2E Upload UI', () => {
     // Wait for the results to be rendered
     const results = page.locator('#results');
     await expect(results).toContainText('Sessions');
-    await expect(results.locator('h3')).toHaveText('Monza - 2023-10-01');
+    await expect(results.locator('h3').first()).toHaveText('Monza - 2023-10-01');
 
     // Reload the page to check IndexedDB persistence
     await page.reload();
 
     // The results should still be there after reload
     await expect(page.locator('#results')).toContainText('Sessions');
-    await expect(page.locator('#results').locator('h3')).toHaveText('Monza - 2023-10-01');
+    await expect(page.locator('#results').locator('h3').first()).toHaveText('Monza - 2023-10-01');
   });
 });

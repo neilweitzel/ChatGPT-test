@@ -1,4 +1,5 @@
 import { computeLeaderboard, formatTime } from '../lib/stats.js';
+import { renderCharts } from './charts.js';
 
 export function renderLeaderboard(container, session) {
   const stats = computeLeaderboard(session);
@@ -163,4 +164,6 @@ export function renderLeaderboard(container, session) {
 
   container.appendChild(headerWrapper);
   container.appendChild(table);
+
+  renderCharts(container, session, stats);
 }
