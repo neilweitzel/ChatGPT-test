@@ -186,3 +186,25 @@ footer {
     pointer-events: none;
     z-index: 100;
 }
+
+/* Map Section */
+.map-container {
+    background: #000;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    color: #fff;
+}
+
+.map-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 4px;
+}
+
+.map-legend {
+    color: #fff;
+}
