@@ -137,3 +137,47 @@ footer {
     color: #15803d !important;
     font-weight: bold;
 }
+
+/* Charts Section */
+.charts-section {
+    margin-top: 40px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.chart-wrapper {
+    margin-top: 20px;
+    overflow-x: auto;
+    position: relative;
+}
+
+.chart-controls {
+    margin-bottom: 20px;
+}
+
+.chart-controls label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.chart-controls select {
+    margin-right: 15px;
+    padding: 5px;
+}
+
+.chart-axis {
+    stroke: #9ca3af;
+    stroke-width: 1;
+}
+
+.chart-tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 100;
+}
