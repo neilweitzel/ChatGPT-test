@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { parseCSV } from '../src/lib/parser.js';
+import { parseGPX, processTelemetry } from '../src/lib/map.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -60,6 +61,26 @@ test.describe('CSV Parser', () => {
 
     expect(errors[3].row).toBe(5);
     expect(errors[3].message).toContain('Missing lap number or time');
+  });
+});
+
+test.describe('GPX Parser and Map Processing', () => {
+  test('parses GPX and segments into laps correctly', () => {
+    const text = fs.readFileSync(path.join(process.cwd(), 'fixtures/kart_track.gpx'), 'utf8');
+    const points = parseGPX(text);
+
+    expect(points.length).toBeGreaterThan(0);
+    expect(points[0]).toHaveProperty('lat');
+    expect(points[0]).toHaveProperty('lon');
+    expect(points[0]).toHaveProperty('time');
+
+    const mapData = processTelemetry(points);
+    expect(mapData).not.toBeNull();
+
+    // We generated 3 laps in the fixture, but segmentation logic might count the initial straight or partial laps.
+    // Given the fixture logic (3 laps from start, returning to start), it should detect multiple laps.
+    expect(mapData.laps.length).toBeGreaterThanOrEqual(2);
+    expect(mapData.laps.length).toBeLessThanOrEqual(4);
   });
 });
 

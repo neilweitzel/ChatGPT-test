@@ -1,6 +1,8 @@
 import { parseCSV } from '../lib/parser.js';
 import { saveSessions, getSessions } from '../lib/db.js';
 import { renderLeaderboard } from './leaderboard.js';
+import { parseGPX, parseGPSCSV, processTelemetry } from '../lib/map.js';
+import { renderTrackMap } from './map.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const dropzone = document.getElementById('dropzone');
@@ -30,13 +32,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Reads a dropped CSV file, parses it, saves the sessions to IndexedDB, and updates the UI.
+ * Reads a dropped file (CSV or GPX), parses it, and updates the UI.
  * @param {File} file - The file object to handle.
  */
 function handleFile(file) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     const text = e.target.result;
+
+    // Check if GPX or GPS CSV
+    const isGPX = file.name.toLowerCase().endsWith('.gpx') || text.includes('<gpx');
+
+    // We'll roughly check if it's a GPS CSV (has lat/lon) vs a Leaderboard CSV (has lap/time)
+    const isGPSCSV = file.name.toLowerCase().endsWith('.csv') &&
+                     (text.toLowerCase().includes('lat') || text.toLowerCase().includes('lon'));
+
+    if (isGPX || isGPSCSV) {
+      const points = isGPX ? parseGPX(text) : parseGPSCSV(text);
+      const mapData = processTelemetry(points);
+
+      const resultsDiv = document.getElementById('results');
+      if (resultsDiv) {
+        // Clear previous results or prepend
+        resultsDiv.innerHTML = '';
+        renderTrackMap(resultsDiv, mapData);
+      }
+      return;
+    }
+
+    // Default to Leaderboard CSV parsing
     const { sessions, errors } = parseCSV(text);
 
     if (sessions.length > 0) {
