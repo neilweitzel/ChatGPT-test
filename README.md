@@ -1,7 +1,7 @@
 # Apex
 
 ## Screenshots
-![Homepage](tests/styles.spec.js-snapshots/homepage-linux.png)
+![Homepage](tests/styles.spec.js-snapshots/homepage.png)
 ![Charts](tests/charts.spec.js-snapshots/charts-section-linux.png)
 ![Map & Replay](tests/replay.spec.js-snapshots/map-replay-screenshot.png)
 

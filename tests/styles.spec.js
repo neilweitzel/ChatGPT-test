@@ -37,6 +37,29 @@ test.describe('Computed Styles', () => {
   });
 
   test('visual regression test', async ({ page }) => {
+    // Drop test dataset for screenshot
+    const fs = (await import('fs')).default;
+    const path = (await import('path')).default;
+    const { fileURLToPath } = await import('url');
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const filePath = path.join(__dirname, '../dataset/test_data.csv');
+    const csvContent = fs.readFileSync(filePath, 'utf-8');
+
+    await page.evaluate((content) => {
+      const file = new File([content], 'test_data.csv', { type: 'text/csv' });
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const dropzone = document.getElementById('dropzone');
+      const e = new Event('drop');
+      e.dataTransfer = dt;
+      dropzone.dispatchEvent(e);
+    }, csvContent);
+
+    // Wait for leaderboard to render to ensure screenshot has the data
+    await expect(page.locator('table.leaderboard-table')).toBeVisible();
+
     await expect(page).toHaveScreenshot('homepage.png');
   });
 });
