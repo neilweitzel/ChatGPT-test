@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { clearSessions } from './helpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,15 +13,7 @@ const __dirname = path.dirname(__filename);
  */
 test.describe('Charts rendering', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear IndexedDB
-    await page.addInitScript(async () => {
-      await new Promise((resolve) => {
-        const req = indexedDB.deleteDatabase('KartingTelemetryDB');
-        req.onsuccess = resolve;
-        req.onerror = resolve;
-        req.onblocked = resolve;
-      });
-    });
+    await clearSessions(page);
     await page.goto('/');
   });
 

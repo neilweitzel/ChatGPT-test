@@ -1,6 +1,40 @@
-const DB_NAME = 'ApexDB';
-const STORE_NAME = 'sessions';
+export const DB_NAME = 'ApexDB';
+export const STORE_NAME = 'sessions';
 const DB_VERSION = 1;
+
+/**
+ * Merges an incoming session into one already stored under the same id.
+ *
+ * Laps are keyed by driver and lap number so re-uploading the same file is
+ * idempotent, while uploading a second driver's file for the same track and
+ * date adds to the session instead of replacing it.
+ *
+ * @param {Object|undefined} existing - The stored session, if any.
+ * @param {Object} incoming - The newly parsed session.
+ * @returns {Object} The session to persist.
+ */
+export function mergeSession(existing, incoming) {
+  if (!existing) return incoming;
+
+  const laps = [...(existing.laps || [])];
+  const seen = new Map(laps.map((lap) => [`${lap.driver}#${lap.lap}`, lap]));
+
+  for (const lap of incoming.laps || []) {
+    const key = `${lap.driver}#${lap.lap}`;
+    const previous = seen.get(key);
+    if (previous) {
+      // Newer upload wins for a lap that already exists.
+      laps[laps.indexOf(previous)] = lap;
+    } else {
+      laps.push(lap);
+      seen.set(key, lap);
+    }
+  }
+
+  const drivers = Array.from(new Set([...(existing.drivers || []), ...(incoming.drivers || [])]));
+
+  return { ...existing, ...incoming, drivers, laps };
+}
 
 /**
  * Initializes and returns a connection to the IndexedDB database.
@@ -48,7 +82,12 @@ export async function saveSessions(sessions) {
     };
 
     for (const session of sessions) {
-      store.put(session);
+      // Read-modify-write inside the same transaction so laps already stored
+      // for this track and date are preserved rather than overwritten.
+      const existingRequest = store.get(session.id);
+      existingRequest.onsuccess = () => {
+        store.put(mergeSession(existingRequest.result, session));
+      };
     }
   });
 }

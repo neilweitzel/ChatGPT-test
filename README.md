@@ -1,9 +1,12 @@
 # Apex
 
 ## Screenshots
-![Homepage](tests/styles.spec.js-snapshots/homepage.png)
+![Homepage](tests/styles.spec.js-snapshots/homepage-linux.png)
 ![Charts](tests/charts.spec.js-snapshots/charts-section-linux.png)
-![Map & Replay](tests/replay.spec.js-snapshots/map-replay-screenshot.png)
+![Map & Replay](tests/replay.spec.js-snapshots/map-replay-screenshot-linux.png)
+
+Screenshots are the Playwright visual-regression baselines, so they always
+reflect the current UI.
 
 ## About Apex
 Apex is a client-side karting telemetry and leaderboard app. It supports parsing telemetry data, local CSV upload handling, robust data validation, displaying dynamic leaderboard and charts, track map rendering, GPX/GPS CSV parsing, speed gradients, and ghost sync replay.
@@ -17,11 +20,30 @@ Apex is a client-side karting telemetry and leaderboard app. It supports parsing
 - **Speed Gradients:** View speed differences visually on the track map.
 - **Ghost Sync Replay:** Replay and compare laps simultaneously.
 
+## Supported Files
+- **Lap CSV:** columns for `Driver`, `Lap`, `Time`, and optional `Sector 1..3`, `Track`, `Date`. Drives the leaderboard and charts.
+- **GPS trace:** a `.gpx` file, or a CSV with `Lat`, `Lon`, and `Time` columns. Drives the track map, speed gradient, and ghost replay.
+
+File type is detected from the header row, not from the file name, and each
+upload renders into its own panel so the leaderboard and the track map can be
+viewed side by side.
+
+## Project Structure
+```
+src/lib/    pure logic: CSV/GPX parsing, format detection, stats, geometry, replay maths, IndexedDB
+src/ui/     DOM rendering: upload wiring, leaderboard, charts, track map, replay controls
+tests/      Playwright unit + end-to-end specs and visual baselines
+fixtures/   small sample files used by tests
+dataset/    large sample lap CSV used by performance and visual tests
+```
+
 ## How to Run
 Since there is no build step, you can run the app by serving the `src` directory using any local web server and opening `index.html` in your browser.
 
 Example using `serve`:
 ```bash
+npm start
+# or
 npx serve src
 ```
 

@@ -26,6 +26,10 @@ export function parseTime(timeStr) {
   return null;
 }
 
+const SECTOR_1_HEADERS = ['sector 1', 'sector1', 's1', 'sec 1', 'sec1'];
+const SECTOR_2_HEADERS = ['sector 2', 'sector2', 's2', 'sec 2', 'sec2'];
+const SECTOR_3_HEADERS = ['sector 3', 'sector3', 's3', 'sec 3', 'sec3'];
+
 /**
  * Parses raw CSV text into a structured list of sessions and errors.
  * Normalizes headers, handles line endings (CRLF), and groups laps by session.
@@ -69,9 +73,9 @@ export function parseCSV(text) {
     else if (h === 'driver') colMap.driver = i;
     else if (h === 'lap') colMap.lap = i;
     else if (h === 'time' || h === 'total time' || h === 'total') colMap.time = i;
-    else if (h === 'sector 1' || h === 's1') colMap.s1 = i;
-    else if (h === 'sector 2' || h === 's2') colMap.s2 = i;
-    else if (h === 'sector 3' || h === 's3') colMap.s3 = i;
+    else if (SECTOR_1_HEADERS.includes(h)) colMap.s1 = i;
+    else if (SECTOR_2_HEADERS.includes(h)) colMap.s2 = i;
+    else if (SECTOR_3_HEADERS.includes(h)) colMap.s3 = i;
   }
 
   for (let i = 1; i < lines.length; i++) {
@@ -106,18 +110,19 @@ export function parseCSV(text) {
         continue;
       }
 
+      // Sector slots are positional: a missing sector stays null so a present
+      // sector never slides into an earlier slot (a lap with S1 and S3 but no
+      // S2 used to report its S3 time as S2).
+      const sectorCols = [colMap.s1, colMap.s2, colMap.s3];
+      const lastPresent = sectorCols.reduce(
+        (last, col, idx) => (col !== undefined ? idx : last),
+        -1
+      );
+
       const sectors = [];
-      if (colMap.s1 !== undefined) {
-         const s1 = parseTime(row[colMap.s1]);
-         if (s1 !== null) sectors.push(s1);
-      }
-      if (colMap.s2 !== undefined) {
-         const s2 = parseTime(row[colMap.s2]);
-         if (s2 !== null) sectors.push(s2);
-      }
-      if (colMap.s3 !== undefined) {
-         const s3 = parseTime(row[colMap.s3]);
-         if (s3 !== null) sectors.push(s3);
+      for (let s = 0; s <= lastPresent; s++) {
+        const col = sectorCols[s];
+        sectors.push(col !== undefined ? parseTime(row[col]) : null);
       }
 
       const sessionId = `${track}-${date}`;
