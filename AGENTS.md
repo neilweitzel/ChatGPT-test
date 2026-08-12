@@ -14,6 +14,12 @@ Apex is a client-side karting telemetry and leaderboard app. It handles parsing 
   - `src/ui/` owns element creation and event wiring, and imports its maths from `src/lib/`.
 - **Docs**: The README feature list is the source of truth. Any feature it lists must be reachable in the running UI and covered by a test.
 - **Styling**: No inline `style` attributes or inline style strings; add classes to `src/styles/style.css`.
+- **Visual language**: trackside timing screen — dark carbon surfaces, one
+  racing-red accent (`--primary-color` for accents, `--primary-fill` for button
+  fills so white labels clear 4.5:1), uppercase condensed headings, and
+  monospaced tabular figures for any number a driver reads. Purple is the
+  session best, green a personal best. Style through the tokens in `:root`
+  rather than hardcoding colours, and keep text at WCAG AA against its surface.
 - **Layout**: The page must not scroll sideways at 320px. Wide content (the
   leaderboard table, charts, the replay bar) shrinks or scrolls inside its own
   container; tests assert this at several viewport widths.

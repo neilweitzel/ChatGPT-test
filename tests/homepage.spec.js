@@ -33,10 +33,11 @@ test.describe('Homepage', () => {
 
   test('displays the main header and tagline', async ({ page }) => {
     const header = page.locator('header h1');
-    await expect(header).toHaveText('Apex Karting Telemetry');
+    await expect(header).toHaveText('Apex');
+    await expect(page.locator('header .eyebrow')).toHaveText('Kart Telemetry & Timing');
 
     const tagline = page.locator('header .tagline');
-    await expect(tagline).toHaveText('Analyze your karting performance with dynamic leaderboards and charts.');
+    await expect(tagline).toContainText('Lap times, sector deltas and ghost replays');
   });
 
   test('displays summary section', async ({ page }) => {
@@ -51,17 +52,23 @@ test.describe('Homepage', () => {
 
     const summarySection = page.locator('main section.summary');
     const listItems = summarySection.locator('ul.feature-list li');
-    // These must stay in sync with the Features list in README.md.
+    // These must stay in sync with the Features list in README.md. Each chip
+    // shows the feature name and carries its description as a tooltip.
     const expectedTexts = [
-      'Local CSV Upload:',
-      'Dynamic Leaderboard:',
-      'Visualizations:',
-      'Track Map Rendering:',
-      'GPX and GPS CSV Parsing:',
-      'Speed Gradients:',
-      'Ghost Sync Replay:'
+      'Local CSV Upload',
+      'Dynamic Leaderboard',
+      'Visualizations',
+      'Track Map Rendering',
+      'GPX and GPS CSV Parsing',
+      'Speed Gradients',
+      'Ghost Sync Replay'
     ];
     await expect(listItems).toHaveCount(expectedTexts.length);
+    // Every chip explains itself on hover, so nothing is lost by compacting.
+    for (let i = 0; i < expectedTexts.length; i++) {
+      const title = await listItems.nth(i).getAttribute('title');
+      expect(title, `${expectedTexts[i]} needs a description`).toBeTruthy();
+    }
     await Promise.all(
       expectedTexts.map((text, i) => expect(listItems.nth(i)).toContainText(text))
     );
