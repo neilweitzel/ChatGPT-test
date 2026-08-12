@@ -135,6 +135,11 @@ export function processTelemetry(points) {
     // Set first point speed
     smoothed[0].speed = smoothed.length > 1 ? smoothed[1].speed : 0;
 
+    // Add cumulative distance to points
+    for (let i = 0; i < smoothed.length; i++) {
+        smoothed[i].dist = cumulativeDist[i];
+    }
+
     // Lap segmentation
     // We assume the start/finish line is near the origin (first point) for simplicity,
     // or we can find the point that returns closest to the origin.
@@ -183,5 +188,55 @@ export function processTelemetry(points) {
         laps.push(smoothed.slice(startIdx));
     }
 
+    // Post-process laps to ensure they start at dist=0 and t=0
+    laps = laps.map(lap => {
+        if (lap.length === 0) return lap;
+        const startDist = lap[0].dist;
+        const startTime = lap[0].time;
+        return lap.map(pt => ({
+            ...pt,
+            dist: pt.dist - startDist,
+            t: pt.time - startTime
+        }));
+    });
+
     return { points: smoothed, laps, crossings };
+}
+
+/**
+ * Linearly interpolates a property in an array of points based on a key value.
+ * @param {Array<Object>} points - The array of objects to search within.
+ * @param {number} value - The input value to match against `inKey`.
+ * @param {string} inKey - The key to search by (e.g., 'dist' or 't').
+ * @param {string} outKey - The key whose value we want to interpolate (e.g., 't', 'x', 'y').
+ * @returns {number} The interpolated value.
+ */
+export function interpolate(points, value, inKey, outKey) {
+    if (!points || points.length === 0) return 0;
+    if (points.length === 1) return points[0][outKey];
+
+    if (value <= points[0][inKey]) return points[0][outKey];
+    if (value >= points[points.length - 1][inKey]) return points[points.length - 1][outKey];
+
+    let low = 0;
+    let high = points.length - 1;
+
+    while (low <= high) {
+        let mid = Math.floor((low + high) / 2);
+        if (points[mid][inKey] === value) {
+            return points[mid][outKey];
+        } else if (points[mid][inKey] < value) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+
+    const p1 = points[high];
+    const p2 = points[low];
+
+    if (!p1 || !p2 || p1[inKey] === p2[inKey]) return p1 ? p1[outKey] : 0;
+
+    const ratio = (value - p1[inKey]) / (p2[inKey] - p1[inKey]);
+    return p1[outKey] + ratio * (p2[outKey] - p1[outKey]);
 }

@@ -208,3 +208,29 @@ footer {
 .map-legend {
     color: #fff;
 }
+
+.replay-controls {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+}
+
+.replay-scrubber {
+    flex: 1;
+}
+
+.replay-delta {
+    font-weight: bold;
+    min-width: 100px;
+    text-align: right;
+}
+
+.positive-delta {
+    color: #ff4d4d;
+}
+
+.negative-delta {
+    color: #4dff4d;
+}

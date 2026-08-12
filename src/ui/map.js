@@ -1,3 +1,5 @@
+import { interpolate } from '../lib/map.js';
+
 /**
  * Converts a speed value (relative to min/max) into a color string.
  * Uses a continuous gradient from blue (slow) to green to red (fast).
@@ -142,6 +144,151 @@ export function renderTrackMap(container, mapData) {
     const containerDiv = document.createElement('div');
     containerDiv.className = 'map-container';
     containerDiv.appendChild(svg);
+
+    // Replay logic
+    if (laps.length >= 2) {
+        const lapA = laps[0];
+        const lapB = laps[1];
+        const maxDist = lapA[lapA.length - 1].dist;
+        const maxTime = lapA[lapA.length - 1].t;
+
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'replay-controls';
+
+        const playBtn = document.createElement('button');
+        playBtn.className = 'replay-play-btn';
+        playBtn.textContent = 'Play';
+
+        const speedSelect = document.createElement('select');
+        speedSelect.className = 'replay-speed-select';
+        [0.25, 0.5, 1, 2, 4].forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s;
+            opt.textContent = `${s}x`;
+            if (s === 1) opt.selected = true;
+            speedSelect.appendChild(opt);
+        });
+
+        const scrubber = document.createElement('input');
+        scrubber.type = 'range';
+        scrubber.min = '0';
+        scrubber.max = maxTime.toString();
+        scrubber.value = '0';
+        scrubber.className = 'replay-scrubber';
+
+        const deltaReadout = document.createElement('div');
+        deltaReadout.className = 'replay-delta';
+        deltaReadout.textContent = '+0.000s';
+
+        controlsDiv.appendChild(playBtn);
+        controlsDiv.appendChild(speedSelect);
+        controlsDiv.appendChild(scrubber);
+        controlsDiv.appendChild(deltaReadout);
+
+        // Insert controls above the map container
+        containerDiv.insertBefore(controlsDiv, containerDiv.firstChild);
+
+        const markerA = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        markerA.setAttribute('r', '6');
+        markerA.setAttribute('fill', 'blue');
+        markerA.setAttribute('stroke', 'white');
+        markerA.setAttribute('stroke-width', '2');
+        svg.appendChild(markerA);
+
+        const markerB = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        markerB.setAttribute('r', '6');
+        markerB.setAttribute('fill', 'orange');
+        markerB.setAttribute('stroke', 'white');
+        markerB.setAttribute('stroke-width', '2');
+        svg.appendChild(markerB);
+
+        let isPlaying = false;
+        let playbackSpeed = 1;
+        let currentElapsed = 0;
+        let lastFrameTime = 0;
+        let animFrameId = null;
+
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playBtn.textContent = isPlaying ? 'Pause' : 'Play';
+            if (isPlaying && currentElapsed >= maxTime) {
+                currentElapsed = 0;
+            }
+            if (isPlaying) {
+                lastFrameTime = performance.now();
+                animFrameId = requestAnimationFrame(loop);
+            } else {
+                cancelAnimationFrame(animFrameId);
+            }
+        });
+
+        speedSelect.addEventListener('change', (e) => {
+            playbackSpeed = parseFloat(e.target.value);
+        });
+
+        scrubber.addEventListener('input', (e) => {
+            currentElapsed = parseFloat(e.target.value);
+            updateReplay();
+        });
+
+        function updateReplay() {
+            if (currentElapsed > maxTime) {
+                currentElapsed = maxTime;
+                isPlaying = false;
+                playBtn.textContent = 'Play';
+            }
+            if (currentElapsed < 0) currentElapsed = 0;
+            scrubber.value = currentElapsed.toString();
+
+            const distA = interpolate(lapA, currentElapsed, 't', 'dist');
+            const xA = interpolate(lapA, distA, 'dist', 'x');
+            const yA = interpolate(lapA, distA, 'dist', 'y');
+
+            const sxA = (xA - minX) * scale + offsetX;
+            const syA = height - ((yA - minY) * scale + offsetY);
+            markerA.setAttribute('cx', sxA);
+            markerA.setAttribute('cy', syA);
+
+            const timeBAtDistA = interpolate(lapB, distA, 'dist', 't');
+            const deltaT = timeBAtDistA - currentElapsed;
+
+            // "Synchronized by distance": place B at distance that corresponds to A's time offset by deltaT
+            const distBGhost = interpolate(lapA, currentElapsed - deltaT, 't', 'dist');
+            const xB = interpolate(lapB, distBGhost, 'dist', 'x');
+            const yB = interpolate(lapB, distBGhost, 'dist', 'y');
+
+            const sxB = (xB - minX) * scale + offsetX;
+            const syB = height - ((yB - minY) * scale + offsetY);
+            markerB.setAttribute('cx', sxB);
+            markerB.setAttribute('cy', syB);
+
+            // deltaT in ms
+            const deltaSec = deltaT / 1000;
+            deltaReadout.textContent = (deltaSec > 0 ? '+' : '') + `${deltaSec.toFixed(3)}s`;
+            if (deltaSec > 0) {
+                deltaReadout.classList.remove('negative-delta');
+                deltaReadout.classList.add('positive-delta');
+            } else {
+                deltaReadout.classList.remove('positive-delta');
+                deltaReadout.classList.add('negative-delta');
+            }
+        }
+
+        function loop(timestamp) {
+            if (!lastFrameTime) lastFrameTime = timestamp;
+            const dt = timestamp - lastFrameTime;
+            lastFrameTime = timestamp;
+
+            if (isPlaying) {
+                currentElapsed += dt * playbackSpeed;
+                updateReplay();
+                animFrameId = requestAnimationFrame(loop);
+            }
+        }
+
+        // Initial render
+        updateReplay();
+    }
 
     // Add legend
     const legend = document.createElement('div');
