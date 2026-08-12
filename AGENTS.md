@@ -50,6 +50,10 @@ documentation (the README uses `docs/screenshots/`). Regenerate them with
 `--update-snapshots` only rewrites baselines whose comparison already failed, so
 small changes inside the tolerance would leave stale screenshots behind.
 
+Keep visual baselines viewport-sized, never `fullPage`: page height depends on
+text wrapping and therefore on the fonts installed, and Playwright fails a
+size mismatch no matter how generous the pixel tolerance is.
+
 Baselines are compared with a pixel-ratio tolerance (see `playwright.config.js`)
 because CI runners install different system fonts than a developer machine.
 Exact styling is asserted through computed-style checks in `tests/styles.spec.js`

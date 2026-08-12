@@ -60,7 +60,10 @@ test.describe('Computed Styles', () => {
     // Wait for leaderboard to render to ensure screenshot has the data
     await expect(page.locator('table.leaderboard-table')).toBeVisible();
 
-    // Full page so the baseline doubles as the README screenshot.
-    await expect(page).toHaveScreenshot('homepage.png', { fullPage: true });
+    // Viewport-sized on purpose. A full-page screenshot's height depends on how
+    // text wraps, which differs with the fonts installed on the machine, and a
+    // size mismatch fails regardless of the pixel tolerance. The README uses
+    // docs/screenshots/ instead, which is generated rather than asserted.
+    await expect(page).toHaveScreenshot('homepage.png', { fullPage: false });
   });
 });
