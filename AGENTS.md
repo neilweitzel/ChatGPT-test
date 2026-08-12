@@ -14,6 +14,9 @@ Apex is a client-side karting telemetry and leaderboard app. It handles parsing 
   - `src/ui/` owns element creation and event wiring, and imports its maths from `src/lib/`.
 - **Docs**: The README feature list is the source of truth. Any feature it lists must be reachable in the running UI and covered by a test.
 - **Styling**: No inline `style` attributes or inline style strings; add classes to `src/styles/style.css`.
+- **Layout**: The page must not scroll sideways at 320px. Wide content (the
+  leaderboard table, charts, the replay bar) shrinks or scrolls inside its own
+  container; tests assert this at several viewport widths.
 
 ## How to Run
 Since there is no build step, you can run the app by serving the `src` directory using any local web server (e.g., `npm start`, `npx serve src`, or `python3 -m http.server -d src`) and opening `index.html`.

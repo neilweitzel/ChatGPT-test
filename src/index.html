@@ -14,15 +14,11 @@
         <p class="tagline">Analyze your karting performance with dynamic leaderboards and charts.</p>
     </header>
     <main>
-        <!-- Summary Section -->
+        <!-- Summary Section, including the feature list -->
         <section class="summary">
             <h2>About Apex</h2>
             <p>Apex is a client-side web application designed to parse, analyze, and visualize karting telemetry data. Upload your session data to uncover insights.</p>
-        </section>
-        <!-- Features Section -->
-        <section class="features">
-            <h2>Features</h2>
-            <ul>
+            <ul class="feature-list">
                 <li><strong>Local CSV Upload:</strong> Process telemetry data entirely on the client.</li>
                 <li><strong>Dynamic Leaderboard:</strong> View best laps, theoretical bests, median lap times, and consistency scores.</li>
                 <li><strong>Visualizations:</strong> Compare driver performance through lap trace and sector delta charts.</li>
@@ -74,9 +70,10 @@
     </main>
     <!-- Footer Section -->
     <footer>
-        <p>&copy; 2023 Apex Karting</p>
+        <p>&copy; <span id="footer-year">2026</span> Apex Karting</p>
     </footer>
     <script type="module" src="ui/upload.js"></script>
     <script type="module" src="ui/demo.js"></script>
+    <script type="module" src="ui/footer.js"></script>
 </body>
 </html>

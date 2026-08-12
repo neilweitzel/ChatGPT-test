@@ -158,9 +158,10 @@ function renderLapTraceChart(container, session, stats, colors) {
 
   // Create SVG element using string concatenation (Vanilla JS, no React/D3)
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
+  // A viewBox with no fixed pixel width lets the chart scale down on narrow
+  // screens rather than forcing the page to scroll sideways.
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   svg.classList.add('lap-trace-svg');
 
   // Axes
@@ -403,9 +404,8 @@ function renderSectorDeltaChart(container, session, stats, driverA, driverB) {
   const yScale = (delta) => margin.top + chartHeight / 2 - (delta / maxDelta) * (chartHeight / 2);
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   svg.classList.add('sector-delta-svg');
 
   // Center axis

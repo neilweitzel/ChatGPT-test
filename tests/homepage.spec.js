@@ -45,11 +45,12 @@ test.describe('Homepage', () => {
     await expect(summarySection.locator('p')).toContainText('Apex is a client-side web application');
   });
 
-  test('displays features section', async ({ page }) => {
-    const featuresSection = page.locator('main section.features');
-    await expect(featuresSection.locator('h2')).toHaveText('Features');
+  test('lists the features inside About Apex', async ({ page }) => {
+    // The features live in the About section rather than a section of their own.
+    await expect(page.locator('main section.features')).toHaveCount(0);
 
-    const listItems = featuresSection.locator('ul li');
+    const summarySection = page.locator('main section.summary');
+    const listItems = summarySection.locator('ul.feature-list li');
     // These must stay in sync with the Features list in README.md.
     const expectedTexts = [
       'Local CSV Upload:',
@@ -68,7 +69,8 @@ test.describe('Homepage', () => {
 
   test('displays the footer', async ({ page }) => {
     const footer = page.locator('footer p');
-    await expect(footer).toHaveText('© 2023 Apex Karting');
+    // The year is filled in at runtime so the copyright cannot go stale.
+    await expect(footer).toHaveText(`© ${new Date().getFullYear()} Apex Karting`);
   });
 
   test('is responsive on mobile viewports', async ({ page }) => {
@@ -80,10 +82,57 @@ test.describe('Homepage', () => {
     const summarySection = page.locator('main section.summary');
     await expect(summarySection).toBeVisible();
 
-    const featuresSection = page.locator('main section.features');
-    await expect(featuresSection).toBeVisible();
+    const featureList = page.locator('main section.summary ul.feature-list');
+    await expect(featureList).toBeVisible();
 
     const footer = page.locator('footer p');
     await expect(footer).toBeVisible();
   });
+});
+test.describe('Footer year', () => {
+  test('renders the current year, not a hardcoded one', async ({ page }) => {
+    await page.goto('/');
+
+    const year = String(new Date().getFullYear());
+    await expect(page.locator('#footer-year')).toHaveText(year);
+    // The markup fallback should never be an older year than the one shown.
+    const fallback = await page.evaluate(() => {
+      const html = document.documentElement.outerHTML;
+      const match = html.match(/id="footer-year">(\d{4})</);
+      return match ? match[1] : null;
+    });
+    expect(Number(fallback)).toBeGreaterThanOrEqual(2026);
+  });
+});
+
+test.describe('No horizontal overflow', () => {
+  // A wide select, the eight-column leaderboard and the replay bar have all
+  // pushed the page sideways on a phone before; each now shrinks or scrolls
+  // inside its own container.
+  for (const width of [320, 375, 414, 768]) {
+    test(`page does not scroll sideways at ${width}px, with data loaded`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto('/');
+
+      await page.locator('#demo-race-load').click();
+      await expect(page.locator('table.leaderboard-table')).toBeVisible();
+      await page.locator('#demo-trace-load').click();
+      await expect(page.locator('#map-panel .map-svg')).toBeVisible();
+
+      const { scrollWidth, innerWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        innerWidth: window.innerWidth,
+      }));
+      expect(scrollWidth, `page is ${scrollWidth - innerWidth}px too wide`).toBeLessThanOrEqual(
+        innerWidth + 1
+      );
+
+      // The wide table stays reachable by scrolling its own wrapper.
+      const scrollable = await page
+        .locator('.table-scroll')
+        .first()
+        .evaluate((el) => el.scrollWidth > el.clientWidth || el.clientWidth >= el.scrollWidth);
+      expect(scrollable).toBe(true);
+    });
+  }
 });
