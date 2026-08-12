@@ -29,7 +29,8 @@ npx serve src                # equivalent
 python3 -m http.server -d src
 ```
 
-Then upload one of the demo files in `dataset/` to see every feature populated.
+No upload is needed to try it: the **Try a Demo Race** panel at the top offers
+every session bundled in `dataset/`.
 
 ## Supported Files
 
@@ -70,14 +71,27 @@ skipped and listed instead of failing the whole upload.
 
 ## Walkthrough
 
-### 1. Upload
+### 1. Pick a demo race
+
+The demo panel lists the bundled races and lap traces, each labelled with what is
+inside it — drivers, laps, best lap, circuit length, peak speed. **View race**
+loads a session into the leaderboard and charts; **Replay lap** loads a GPS trace
+onto the track map and starts the ghost replay. Loading several races keeps each
+one on the page as its own session.
+
+![Demo picker](docs/screenshots/demo-picker.png)
+
+Demo files are read with the same parsing and rendering path as an upload, so
+what you see in the demo is exactly what your own file will do.
+
+### 2. Upload your own
 
 Drag a file onto the dropzone, or use the file picker. The status line reports
 what was loaded, and unreadable rows are listed beneath it.
 
 ![Upload panel](docs/screenshots/upload.png)
 
-### 2. Leaderboard
+### 3. Leaderboard
 
 Every driver's best lap, best sector times, theoretical best (the sum of their
 own best sectors), average, median, and consistency — the standard deviation of
@@ -87,7 +101,7 @@ best. Any column header sorts, by mouse or keyboard.
 
 ![Leaderboard](docs/screenshots/leaderboard.png)
 
-### 3. Charts
+### 4. Charts
 
 The lap trace plots every lap in the order it was set, which exposes warm-up
 laps, traffic, and the rookie's spin on lap 7 (clamped to the top of the chart
@@ -96,7 +110,7 @@ driver A gained in that sector, red means they lost.
 
 ![Charts](docs/screenshots/charts.png)
 
-### 4. Track map and ghost replay
+### 5. Track map and ghost replay
 
 The racing line is coloured by speed, from blue through green to red, clipped to
 the 5th–95th percentile so a single GPS glitch cannot wash out the scale. The
@@ -109,20 +123,31 @@ track.
 
 ## Demo Data
 
-`dataset/` holds ready-to-upload files. All of them are synthetic — no real
-driver or GPS data is included.
+`dataset/` is the single source of truth for demo telemetry. All of it is
+synthetic — no real driver or GPS data is included.
 
-| File | Contents | Purpose |
+| File | Contents | Offered as |
 | --- | --- | --- |
-| `demo_session.csv` | 86 laps, 6 drivers, 3 sectors, a traffic-affected lap for each driver and one spin | Leaderboard and charts; source of the screenshots above |
-| `demo_lap_trace.gpx` | 1,694 points at 10 Hz, 771 m circuit, 3 laps at 57.8 / 55.3 / 56.2 s, 29–64 km/h | Track map, speed gradient and ghost replay |
-| `scale_10k_laps.csv` | 10,001 deliberately repetitive laps | Parse and render performance only; not representative telemetry |
+| `demo_session.csv` | 86 laps, 6 drivers, 3 sectors, a traffic lap each and one spin | Race — Fastimes Indoor Karting, 8 Aug 2026 |
+| `demo_race_whiteland_sprint.csv` | 90 laps, 5 drivers, outdoor circuit, ~46.4s best | Race — Whiteland Raceway Park, 25 Jul 2026 |
+| `demo_race_endurance_night.csv` | 148 laps, 6 drivers, long runs on worn tyres | Race — Fastimes Indoor Karting, 11 Aug 2026 |
+| `demo_lap_trace.gpx` | 1,694 points at 10 Hz, 771 m circuit, 3 laps, 29–64 km/h | Lap trace — sprint circuit (GPX) |
+| `demo_technical_trace.csv` | 1,820 points at 10 Hz, 512 m circuit, 4 laps, slower and tighter | Lap trace — technical layout (GPS CSV) |
+| `scale_10k_laps.csv` | 10,001 deliberately repetitive laps | Not offered; parse and render performance only |
 
-Regenerate the demo files deterministically (same seed, identical output):
+Because GitHub Pages serves only `src/`, the demo files are published into
+`src/demo/` alongside `src/demo/manifest.json`, which the picker fetches to build
+its dropdowns. Both are generated — never edit them by hand:
 
 ```bash
-npm run generate:data
+npm run generate:data   # regenerate dataset/ (deterministic) and sync src/demo/
+npm run sync:demo       # only refresh src/demo/ from dataset/
 ```
+
+Manifest labels are derived by running each file through the app's own parsers,
+so a dropdown can never claim something the data does not contain. `npm run
+validate:data` fails if `src/demo/` drifts from `dataset/`, and a test asserts
+the same.
 
 ## Validating Data
 
@@ -175,8 +200,9 @@ Actions tab to redeploy the current `main` without a new commit.
 src/lib/     pure logic: CSV/GPX parsing, format detection, stats, geometry, replay maths, IndexedDB
 src/ui/      DOM rendering: upload wiring, leaderboard, charts, track map, replay controls
 tests/       Playwright unit and end-to-end specs, plus visual baselines
+src/demo/    generated copies of the demo data plus manifest.json, served to the picker
 fixtures/    small files used by tests, including deliberately malformed input
-dataset/     demo and performance data
-scripts/     data generation and validation tools
+dataset/     demo and performance data (source of truth)
+scripts/     data generation, sync and validation tools
 docs/        README screenshots
 ```
