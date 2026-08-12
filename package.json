@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/neilweitzel/ChatGPT-test.git"
+    "url": "git+https://github.com/neilweitzel/Apex-Race-Telemetry.git"
   },
   "keywords": [
     "karting",
@@ -23,9 +23,9 @@
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/neilweitzel/ChatGPT-test/issues"
+    "url": "https://github.com/neilweitzel/Apex-Race-Telemetry/issues"
   },
-  "homepage": "https://github.com/neilweitzel/ChatGPT-test#readme",
+  "homepage": "https://neilweitzel.github.io/Apex-Race-Telemetry/",
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "serve": "^14.2.6"
