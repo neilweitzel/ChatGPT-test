@@ -3,6 +3,9 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
+  // Screenshot generation is a documentation task, not an assertion; run it
+  // explicitly with `npm run screenshots`.
+  grepInvert: /@screenshots/,
   reporter: 'html',
   use: {
     baseURL: `http://127.0.0.1:3000`,

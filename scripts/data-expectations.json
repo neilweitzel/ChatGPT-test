@@ -1,0 +1,37 @@
+{
+  "$comment": "Declares the intent of each committed data file so validation can distinguish a real problem from a deliberate one. 'valid' (default) must parse cleanly with no quality warnings; 'synthetic' must parse cleanly but may be degenerate; 'invalid' must fail to parse.",
+  "files": {
+    "dataset/demo_session.csv": {
+      "expect": "valid",
+      "why": "Realistic six-driver session used for the README screenshots."
+    },
+    "dataset/demo_lap_trace.gpx": {
+      "expect": "valid",
+      "why": "Realistic three-lap GPS trace used for the map, gradient and replay."
+    },
+    "dataset/scale_10k_laps.csv": {
+      "expect": "synthetic",
+      "why": "Deliberately repetitive 10k-lap file that exercises parse and render performance. Not representative telemetry."
+    },
+    "fixtures/clean_session.csv": {
+      "expect": "synthetic",
+      "why": "Minimal happy-path fixture; Luigi intentionally has a single lap."
+    },
+    "fixtures/messy_columns.csv": {
+      "expect": "synthetic",
+      "why": "Exercises BOM, CRLF and shuffled column order."
+    },
+    "fixtures/leaderboard_test.csv": {
+      "expect": "valid",
+      "why": "Small three-driver session for leaderboard highlighting and sorting."
+    },
+    "fixtures/malformed_errors.csv": {
+      "expect": "invalid",
+      "why": "Every row is broken on purpose, to prove the parser reports errors instead of throwing."
+    },
+    "fixtures/kart_track.gpx": {
+      "expect": "synthetic",
+      "why": "Simple square loop used for lap-segmentation unit tests; speed is intentionally uniform."
+    }
+  }
+}

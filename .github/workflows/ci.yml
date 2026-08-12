@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      - name: Validate telemetry data
+        run: npm run validate:data
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
         id: playwright-cache
