@@ -270,6 +270,7 @@ function renderLapTraceChart(container, session, stats, colors) {
      text.setAttribute('y', y + 4);
      text.setAttribute('text-anchor', 'end');
      text.setAttribute('font-size', '10px');
+     text.classList.add('chart-tick');
      text.textContent = formatTime(t);
      svg.appendChild(text);
   }
@@ -284,6 +285,7 @@ function renderLapTraceChart(container, session, stats, colors) {
      text.setAttribute('y', margin.top + chartHeight + 15);
      text.setAttribute('text-anchor', 'middle');
      text.setAttribute('font-size', '10px');
+     text.classList.add('chart-tick');
      text.textContent = idx + 1;
      svg.appendChild(text);
   }
@@ -427,12 +429,12 @@ function renderSectorDeltaChart(container, session, stats, driverA, driverB) {
           // B is faster (A is slower) -> positive bar
           y = yScale(delta);
           h = yScale(0) - yScale(delta);
-          bar.setAttribute('fill', '#e41a1c'); // red for slower
+          bar.classList.add('delta-bar-slower');
       } else {
           // A is faster -> negative bar
           y = yScale(0);
           h = yScale(delta) - yScale(0);
-          bar.setAttribute('fill', '#4daf4a'); // green for faster
+          bar.classList.add('delta-bar-faster');
       }
 
       bar.setAttribute('x', x);
@@ -452,6 +454,7 @@ function renderSectorDeltaChart(container, session, stats, driverA, driverB) {
       label.setAttribute('y', margin.top + chartHeight + 20);
       label.setAttribute('text-anchor', 'middle');
       label.setAttribute('font-size', '12px');
+      label.classList.add('chart-tick');
       label.textContent = `S${idx + 1}`;
       svg.appendChild(label);
   });
@@ -464,6 +467,7 @@ function renderSectorDeltaChart(container, session, stats, driverA, driverB) {
      text.setAttribute('y', y + 4);
      text.setAttribute('text-anchor', 'end');
      text.setAttribute('font-size', '10px');
+     text.classList.add('chart-tick');
      text.textContent = (val > 0 ? '+' : '') + Math.round(val) + 'ms';
      svg.appendChild(text);
   });

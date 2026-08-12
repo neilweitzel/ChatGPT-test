@@ -8,6 +8,14 @@ and no data leaving the machine.
 **[Open the live app](https://neilweitzel.github.io/Apex-Race-Telemetry/)** — then
 upload one of the demo files from `dataset/` to populate it.
 
+## Interface
+
+Apex is styled after a trackside timing screen: dark carbon surfaces, a single
+racing-red accent, and monospaced tabular figures so lap times line up digit for
+digit. Lap colours follow motorsport convention — purple for the session best,
+green for a driver's personal best. The feature list is condensed into chips
+inside About Apex so the app itself sits at the top of the page.
+
 ## Features
 
 - **Local CSV Upload:** Process telemetry data entirely on the client.
