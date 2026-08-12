@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { clearSessions, dropFile } from './helpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,29 +12,9 @@ Monza,2023-10-01,Alice,1,1:25.000,28.000,29.000,28.000
 Monza,2023-10-01,Alice,2,1:26.000,28.500,29.000,28.500
 Monza,2023-10-01,Bob,1,1:25.400,28.100,28.900,28.400`;
 
-/**
- * Drops a file onto the dropzone using a synthetic DataTransfer.
- * @param {import('@playwright/test').Page} page
- * @param {string} content
- * @param {string} filename
- */
-async function dropFile(page, content, filename) {
-  const dataTransfer = await page.evaluateHandle(
-    ({ content, filename }) => {
-      const dt = new DataTransfer();
-      dt.items.add(new File([content], filename, { type: 'text/csv' }));
-      return dt;
-    },
-    { content, filename }
-  );
-  await page.locator('#dropzone').dispatchEvent('drop', { dataTransfer });
-}
-
 test.describe('Upload routing', () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript(() => {
-      indexedDB.deleteDatabase('KartingTelemetryDB');
-    });
+    await clearSessions(page);
     await page.goto('/');
   });
 

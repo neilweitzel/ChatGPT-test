@@ -1,6 +1,21 @@
 import { formatTime } from '../lib/stats.js';
 
 /**
+ * Returns the single shared tooltip element, creating it on first use.
+ * A shared element avoids leaking one detached tooltip per chart re-render.
+ * @returns {HTMLElement}
+ */
+function getTooltip() {
+  let tooltip = document.querySelector('.chart-tooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.className = 'chart-tooltip';
+    document.body.appendChild(tooltip);
+  }
+  return tooltip;
+}
+
+/**
  * Main entry point for rendering charting components (lap trace and sector delta) into the given container.
  * Also handles driver selection controls for the sector delta comparison.
  * @param {HTMLElement} container - The DOM element where the charts section will be injected.
@@ -164,9 +179,8 @@ function renderLapTraceChart(container, session, stats, colors) {
   // Draw Lines
   let driverIdx = 0;
 
-  const tooltip = document.createElement('div');
-  tooltip.className = 'chart-tooltip';
-  document.body.appendChild(tooltip);
+  const tooltip = getTooltip();
+  tooltip.classList.remove('visible');
 
   driverData.forEach((laps, driver) => {
     const color = colors[driverIdx % colors.length];
@@ -195,31 +209,16 @@ function renderLapTraceChart(container, session, stats, colors) {
          circle.setAttribute('opacity', 0.5);
       }
 
-      circle.addEventListener('mouseenter', () => {
-         const strong = document.createElement('strong');
-         strong.textContent = driver;
-
-         tooltip.replaceChildren(strong);
-
-         const details = `\nLap: ${idx + 1}\nTime: ${formatTime(lap.time)}` +
-           (isOutlier ? ' (Outlier)' : '') +
-           (lap.sectors ? `\nS1: ${formatTime(lap.sectors[0])}\nS2: ${formatTime(lap.sectors[1])}\nS3: ${formatTime(lap.sectors[2])}` : '');
-
-         // Render newline-separated details as line breaks.
-         details.split('\n').forEach(part => {
-             tooltip.appendChild(document.createTextNode(part));
-             tooltip.appendChild(document.createElement('br'));
-         });
-
-         tooltip.classList.add('visible');
-      });
-      circle.addEventListener('mousemove', (e) => {
-         tooltip.style.left = (e.pageX + 10) + 'px';
-         tooltip.style.top = (e.pageY + 10) + 'px';
-      });
-      circle.addEventListener('mouseleave', () => {
-         tooltip.classList.remove('visible');
-      });
+      // Tooltip content travels on the element; hover is handled by a single
+      // delegated listener on the SVG rather than three listeners per point,
+      // which kept thousands of closures alive on large sessions.
+      circle.dataset.driver = driver;
+      circle.dataset.lap = String(idx + 1);
+      circle.dataset.time = formatTime(lap.time);
+      if (isOutlier) circle.dataset.outlier = 'true';
+      if (lap.sectors && lap.sectors.length > 0) {
+         circle.dataset.sectors = lap.sectors.map(formatTime).join('|');
+      }
 
       svg.appendChild(circle);
     });
@@ -271,7 +270,57 @@ function renderLapTraceChart(container, session, stats, colors) {
      svg.appendChild(text);
   }
 
+  attachLapTraceTooltip(svg, tooltip);
+
   container.appendChild(svg);
+}
+
+/**
+ * Wires hover tooltips for the lap trace using event delegation.
+ * @param {SVGSVGElement} svg - The lap trace SVG.
+ * @param {HTMLElement} tooltip - The shared tooltip element.
+ */
+function attachLapTraceTooltip(svg, tooltip) {
+  /**
+   * Fills the tooltip from a point's data attributes.
+   * @param {SVGCircleElement} circle
+   */
+  function fill(circle) {
+    const { driver, lap, time, sectors, outlier } = circle.dataset;
+
+    const strong = document.createElement('strong');
+    strong.textContent = driver;
+    tooltip.replaceChildren(strong);
+
+    const lines = [`Lap: ${lap}`, `Time: ${time}${outlier ? ' (Outlier)' : ''}`];
+    if (sectors) {
+      sectors.split('|').forEach((value, idx) => lines.push(`S${idx + 1}: ${value}`));
+    }
+
+    for (const line of lines) {
+      tooltip.appendChild(document.createElement('br'));
+      tooltip.appendChild(document.createTextNode(line));
+    }
+
+    tooltip.classList.add('visible');
+  }
+
+  svg.addEventListener('mouseover', (event) => {
+    const circle = event.target.closest('circle[data-driver]');
+    if (circle) fill(circle);
+  });
+
+  svg.addEventListener('mousemove', (event) => {
+    if (!tooltip.classList.contains('visible')) return;
+    tooltip.style.left = `${event.pageX + 10}px`;
+    tooltip.style.top = `${event.pageY + 10}px`;
+  });
+
+  svg.addEventListener('mouseout', (event) => {
+    const to = event.relatedTarget;
+    if (to && to.closest && to.closest('circle[data-driver]')) return;
+    tooltip.classList.remove('visible');
+  });
 }
 
 /**

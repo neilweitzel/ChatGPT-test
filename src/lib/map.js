@@ -1,19 +1,39 @@
 /**
  * Parses a GPX string and extracts track points.
+ *
+ * Each `<trkpt>` is isolated before its timestamp is read, so a point without a
+ * `<time>` child can never borrow the timestamp of a later point. Attribute
+ * order is not significant, and self-closing points are supported.
+ *
  * @param {string} gpxStr - The GPX file content.
- * @returns {Array<Object>} Array of objects with lat, lon, and time.
+ * @returns {Array<Object>} Array of objects with lat, lon, and time, in file
+ *   order, excluding points without usable coordinates or timestamps.
  */
 export function parseGPX(gpxStr) {
     const points = [];
-    const trkptRegex = /<trkpt\s+lat="([^"]+)"\s+lon="([^"]+)">(?:[\s\S]*?)<time>([^<]+)<\/time>/gi;
-    let match;
-    while ((match = trkptRegex.exec(gpxStr)) !== null) {
-        points.push({
-            lat: parseFloat(match[1]),
-            lon: parseFloat(match[2]),
-            time: new Date(match[3]).getTime()
-        });
+    if (!gpxStr) return points;
+
+    // Each chunk starts at a <trkpt and ends before the next one, so timestamps
+    // cannot leak across points.
+    const chunks = gpxStr.split(/<trkpt(?=[\s>/])/i).slice(1);
+
+    for (const chunk of chunks) {
+        const lat = parseFloat((chunk.match(/\blat\s*=\s*["']([^"']+)["']/i) || [])[1]);
+        const lon = parseFloat((chunk.match(/\blon\s*=\s*["']([^"']+)["']/i) || [])[1]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        // Only look for <time> inside this point's own element.
+        const end = chunk.search(/<\/trkpt\s*>|\/>/i);
+        const body = end === -1 ? chunk : chunk.slice(0, end);
+        const timeStr = (body.match(/<time>([^<]+)<\/time>/i) || [])[1];
+        if (!timeStr) continue;
+
+        const time = new Date(timeStr.trim()).getTime();
+        if (!Number.isFinite(time)) continue;
+
+        points.push({ lat, lon, time });
     }
+
     return points;
 }
 
@@ -47,16 +67,23 @@ export function parseGPSCSV(csvStr) {
         if (!line) continue;
         const cols = line.split(',').map(c => c.trim());
 
-        let timeVal = new Date(cols[timeIdx]).getTime();
-        if (isNaN(timeVal)) {
-            timeVal = parseFloat(cols[timeIdx]);
+        const raw = cols[timeIdx];
+        // Prefer a numeric offset (e.g. milliseconds) and fall back to a date
+        // string, so both telemetry logger styles are accepted.
+        let timeVal = raw !== undefined && raw !== '' && !isNaN(Number(raw))
+            ? Number(raw)
+            : new Date(raw).getTime();
+
+        const lat = parseFloat(cols[latIdx]);
+        const lon = parseFloat(cols[lonIdx]);
+
+        // Skip unusable rows rather than poisoning the whole track with NaN,
+        // which previously produced NaN bounds and a blank map.
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(timeVal)) {
+            continue;
         }
 
-        points.push({
-            lat: parseFloat(cols[latIdx]),
-            lon: parseFloat(cols[lonIdx]),
-            time: timeVal
-        });
+        points.push({ lat, lon, time: timeVal });
     }
 
     return points;
@@ -93,7 +120,13 @@ function smoothPoints(points, windowSize = 3) {
  * @returns {Object|null} Processed map data including points and laps, or null if invalid.
  */
 export function processTelemetry(points) {
-    if (!points || points.length < 2) return null;
+    if (!points) return null;
+
+    // Defensive: callers may pass raw points from other sources.
+    points = points.filter(
+        (p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lon) && Number.isFinite(p.time)
+    );
+    if (points.length < 2) return null;
 
     let minLat = Infinity, maxLat = -Infinity;
     let minLon = Infinity, maxLon = -Infinity;

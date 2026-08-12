@@ -244,6 +244,18 @@ function initUpload() {
 
   if (!dropzone) return;
 
+  // The dropzone is exposed as a button, so it must also respond to pointer and
+  // keyboard activation instead of being drag-only.
+  if (fileInput) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+  }
+
   dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropzone.classList.add('dragover');

@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/neilweitzel/ChatGPT-test#readme",
   "devDependencies": {
-    "@playwright/test": "^1.61.1"
+    "@playwright/test": "^1.61.1",
+    "serve": "^14.2.6"
   }
 }

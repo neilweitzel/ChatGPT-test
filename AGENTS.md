@@ -18,6 +18,18 @@ Apex is a client-side karting telemetry and leaderboard app. It handles parsing 
 ## How to Run
 Since there is no build step, you can run the app by serving the `src` directory using any local web server (e.g., `npm start`, `npx serve src`, or `python3 -m http.server -d src`) and opening `index.html`.
 
+## Visual Snapshots
+The three committed baselines double as the README screenshots. Regenerate them
+with `npx playwright test --update-snapshots=all` after any UI change — plain
+`--update-snapshots` only rewrites baselines whose comparison already failed, so
+small changes inside the tolerance would leave stale screenshots behind.
+
+Baselines are compared with a pixel-ratio tolerance (see `playwright.config.js`)
+because CI runners install different system fonts than a developer machine.
+Exact styling is asserted through computed-style checks in `tests/styles.spec.js`
+rather than through pixel comparison.
+
+## How to Test
 To run tests, install dependencies and use Playwright:
 ```bash
 npm install

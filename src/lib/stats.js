@@ -78,7 +78,7 @@ export function computeLeaderboard(session) {
 
     if (lap.sectors && lap.sectors.length > 0) {
       lap.sectors.forEach((sec, idx) => {
-        if (sec === null || isNaN(sec)) return;
+        if (typeof sec !== 'number' || isNaN(sec)) return;
 
         // Driver best
         if (stats.bestSectors[idx] === undefined || sec < stats.bestSectors[idx]) {
@@ -125,10 +125,17 @@ export function computeLeaderboard(session) {
       stats.consistency = 0;
     }
 
-    // Theoretical Best
-    // Assume 3 sectors minimum, or rely on length of overallBestSectors which tracks total sectors found.
-    const numSectors = Math.max(3, overallBestSectors.length);
-    if (stats.bestSectors.length === numSectors && !stats.bestSectors.includes(undefined)) {
+    // Theoretical Best: the sum of a driver's best sectors, but only when they
+    // have a best for every sector the session actually uses. The sector count
+    // comes from the data instead of assuming three, so two- and four-sector
+    // tracks report a theoretical best too.
+    const numSectors = overallBestSectors.length;
+    const hasEverySector =
+      numSectors > 0 &&
+      stats.bestSectors.length === numSectors &&
+      stats.bestSectors.every((s) => typeof s === 'number' && !isNaN(s));
+
+    if (hasEverySector) {
       stats.theoreticalBest = stats.bestSectors.reduce((acc, s) => acc + s, 0);
     }
 
