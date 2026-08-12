@@ -169,7 +169,13 @@ export function renderLeaderboard(container, session) {
   headerWrapper.textContent = `${session.track} - ${session.date}`;
 
   container.appendChild(headerWrapper);
-  container.appendChild(table);
+
+  // The table has eight columns, so on a narrow screen it scrolls inside its own
+  // wrapper instead of making the whole page scroll sideways.
+  const scroller = document.createElement('div');
+  scroller.className = 'table-scroll';
+  scroller.appendChild(table);
+  container.appendChild(scroller);
 
   renderCharts(container, session, stats);
 }

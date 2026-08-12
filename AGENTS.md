@@ -14,6 +14,9 @@ Apex is a client-side karting telemetry and leaderboard app. It handles parsing 
   - `src/ui/` owns element creation and event wiring, and imports its maths from `src/lib/`.
 - **Docs**: The README feature list is the source of truth. Any feature it lists must be reachable in the running UI and covered by a test.
 - **Styling**: No inline `style` attributes or inline style strings; add classes to `src/styles/style.css`.
+- **Layout**: The page must not scroll sideways at 320px. Wide content (the
+  leaderboard table, charts, the replay bar) shrinks or scrolls inside its own
+  container; tests assert this at several viewport widths.
 
 ## How to Run
 Since there is no build step, you can run the app by serving the `src` directory using any local web server (e.g., `npm start`, `npx serve src`, or `python3 -m http.server -d src`) and opening `index.html`.
@@ -46,6 +49,10 @@ documentation (the README uses `docs/screenshots/`). Regenerate them with
 `npx playwright test --update-snapshots=all` after any UI change — plain
 `--update-snapshots` only rewrites baselines whose comparison already failed, so
 small changes inside the tolerance would leave stale screenshots behind.
+
+Keep visual baselines viewport-sized, never `fullPage`: page height depends on
+text wrapping and therefore on the fonts installed, and Playwright fails a
+size mismatch no matter how generous the pixel tolerance is.
 
 Baselines are compared with a pixel-ratio tolerance (see `playwright.config.js`)
 because CI runners install different system fonts than a developer machine.
