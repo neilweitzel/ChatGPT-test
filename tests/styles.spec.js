@@ -59,7 +59,7 @@ test.describe('Computed Styles', () => {
   test('footer has correct styling', async ({ page }) => {
     const footer = page.locator('footer');
     await expect(footer).toHaveCSS('background-color', 'rgb(7, 10, 14)');
-    await expect(footer).toHaveCSS('color', 'rgb(157, 171, 189)'); // --secondary-text-color
+    await expect(footer).toHaveCSS('color', 'rgb(174, 187, 203)'); // --secondary-text-color
     await expect(footer).toHaveCSS('text-align', 'center');
   });
 

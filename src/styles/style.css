@@ -18,7 +18,7 @@
 
     /* Text */
     --text-color: #eef2f7;
-    --secondary-text-color: #9dabbd;
+    --secondary-text-color: #aebbcb;
 
     /* Racing red drives every primary action. The bright tone is used for
        accents and text, the deeper one for filled buttons, so white button
@@ -125,7 +125,7 @@ header h1 {
     position: relative;
     margin: 12px auto 0;
     max-width: 620px;
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--secondary-text-color);
 }
 
@@ -408,7 +408,7 @@ button:disabled {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
-    font-size: 0.88rem;
+    font-size: 0.92rem;
 }
 
 .leaderboard-table th,
