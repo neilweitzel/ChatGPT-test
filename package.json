@@ -4,7 +4,10 @@
   "description": "Apex - a client-side karting telemetry and leaderboard app",
   "scripts": {
     "start": "npx serve src -p 3000",
-    "test": "playwright test"
+    "test": "playwright test",
+    "validate:data": "node scripts/validate-dataset.js",
+    "generate:data": "node scripts/generate-demo-data.js",
+    "screenshots": "playwright test --config playwright.screenshots.config.js"
   },
   "repository": {
     "type": "git",

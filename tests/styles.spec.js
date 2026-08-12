@@ -44,11 +44,11 @@ test.describe('Computed Styles', () => {
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
-    const filePath = path.join(__dirname, '../dataset/test_data.csv');
+    const filePath = path.join(__dirname, '../dataset/scale_10k_laps.csv');
     const csvContent = fs.readFileSync(filePath, 'utf-8');
 
     await page.evaluate((content) => {
-      const file = new File([content], 'test_data.csv', { type: 'text/csv' });
+      const file = new File([content], 'scale_10k_laps.csv', { type: 'text/csv' });
       const dt = new DataTransfer();
       dt.items.add(file);
       const dropzone = document.getElementById('dropzone');

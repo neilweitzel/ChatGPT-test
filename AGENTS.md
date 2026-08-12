@@ -18,9 +18,25 @@ Apex is a client-side karting telemetry and leaderboard app. It handles parsing 
 ## How to Run
 Since there is no build step, you can run the app by serving the `src` directory using any local web server (e.g., `npm start`, `npx serve src`, or `python3 -m http.server -d src`) and opening `index.html`.
 
+## Data and Screenshots
+- `dataset/demo_session.csv` and `dataset/demo_lap_trace.gpx` are the realistic
+  demo files behind the README screenshots. Regenerate them deterministically
+  with `npm run generate:data`.
+- `dataset/scale_10k_laps.csv` exists only to exercise parse and render
+  performance. It is intentionally repetitive; do not use it for screenshots or
+  as an example of real telemetry.
+- Run `npm run validate:data` after touching any file in `dataset/` or
+  `fixtures/`. It parses each file with the app's own parsers and reports both
+  parse errors and data-quality problems. CI runs it too.
+- Declare a new data file's intent in `scripts/data-expectations.json`
+  (`valid`, `synthetic`, or `invalid`), otherwise it is held to `valid`.
+- README screenshots live in `docs/screenshots/` and are produced from the demo
+  data by `npm run screenshots`. Refresh them whenever the UI changes.
+
 ## Visual Snapshots
-The three committed baselines double as the README screenshots. Regenerate them
-with `npx playwright test --update-snapshots=all` after any UI change — plain
+The committed baselines under `tests/*-snapshots/` are test artefacts, not
+documentation (the README uses `docs/screenshots/`). Regenerate them with
+`npx playwright test --update-snapshots=all` after any UI change — plain
 `--update-snapshots` only rewrites baselines whose comparison already failed, so
 small changes inside the tolerance would leave stale screenshots behind.
 

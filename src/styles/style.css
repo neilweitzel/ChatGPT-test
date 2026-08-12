@@ -260,6 +260,15 @@ footer {
     stroke-width: 1;
 }
 
+.chart-legend-label {
+    fill: var(--text-color);
+}
+
+.chart-legend-swatch {
+    stroke: rgba(0, 0, 0, 0.15);
+    stroke-width: 1;
+}
+
 .chart-tooltip {
     position: absolute;
     display: none;

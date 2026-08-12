@@ -18,13 +18,13 @@ test.describe('Charts rendering', () => {
   });
 
   test('should render lap trace and sector delta charts', async ({ page }) => {
-    const filePath = path.join(__dirname, '../dataset/test_data.csv');
+    const filePath = path.join(__dirname, '../dataset/scale_10k_laps.csv');
 
     // Instead of fetch, let's read file in node and pass content to page.
     const csvContent = fs.readFileSync(filePath, 'utf-8');
 
     await page.evaluate((content) => {
-      const file = new File([content], 'test_data.csv', { type: 'text/csv' });
+      const file = new File([content], 'scale_10k_laps.csv', { type: 'text/csv' });
       const dt = new DataTransfer();
       dt.items.add(file);
       const dropzone = document.getElementById('dropzone');

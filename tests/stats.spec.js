@@ -15,7 +15,7 @@ test.describe('Stats Logic', () => {
   });
 
   test('computes leaderboard stats correctly', () => {
-    const text = fs.readFileSync(path.join(process.cwd(), 'dataset/test_data.csv'), 'utf8');
+    const text = fs.readFileSync(path.join(process.cwd(), 'dataset/scale_10k_laps.csv'), 'utf8');
     const { sessions } = parseCSV(text);
     const session = sessions[0];
     const stats = computeLeaderboard(session);
