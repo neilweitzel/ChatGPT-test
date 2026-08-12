@@ -5,9 +5,21 @@
       "expect": "valid",
       "why": "Realistic six-driver session used for the README screenshots."
     },
+    "dataset/demo_race_whiteland_sprint.csv": {
+      "expect": "valid",
+      "why": "Outdoor sprint round offered by the in-app demo picker."
+    },
+    "dataset/demo_race_endurance_night.csv": {
+      "expect": "valid",
+      "why": "Longer endurance session offered by the in-app demo picker."
+    },
     "dataset/demo_lap_trace.gpx": {
       "expect": "valid",
       "why": "Realistic three-lap GPS trace used for the map, gradient and replay."
+    },
+    "dataset/demo_technical_trace.csv": {
+      "expect": "valid",
+      "why": "Four-lap GPS CSV trace, also proves the CSV trace format in the picker."
     },
     "dataset/scale_10k_laps.csv": {
       "expect": "synthetic",

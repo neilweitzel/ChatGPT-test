@@ -30,6 +30,12 @@ test.describe('README screenshots @screenshots', () => {
     await clearSessions(page);
     await page.goto('/');
 
+    // --- Demo picker: the bundled races and traces ---
+    await expect(page.locator('section.demo')).toHaveAttribute('data-ready', 'true');
+    await page.locator('section.demo').screenshot({
+      path: path.join(OUT_DIR, 'demo-picker.png'),
+    });
+
     // --- Lap session: leaderboard and charts ---
     await page.locator('#file-input').setInputFiles(DEMO_CSV);
     await expect(page.locator('table.leaderboard-table')).toBeVisible();
@@ -74,7 +80,14 @@ test.describe('README screenshots @screenshots', () => {
       fullPage: true,
     });
 
-    for (const name of ['upload', 'leaderboard', 'charts', 'track-map-replay', 'overview']) {
+    for (const name of [
+      'demo-picker',
+      'upload',
+      'leaderboard',
+      'charts',
+      'track-map-replay',
+      'overview',
+    ]) {
       const file = path.join(OUT_DIR, `${name}.png`);
       expect(fs.existsSync(file), `${name}.png was not written`).toBe(true);
       expect(fs.statSync(file).size, `${name}.png looks empty`).toBeGreaterThan(5_000);

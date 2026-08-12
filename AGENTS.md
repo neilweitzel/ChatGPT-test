@@ -25,6 +25,13 @@ Since there is no build step, you can run the app by serving the `src` directory
 - `dataset/scale_10k_laps.csv` exists only to exercise parse and render
   performance. It is intentionally repetitive; do not use it for screenshots or
   as an example of real telemetry.
+- `src/demo/` is **generated**: copies of the demo files plus `manifest.json`,
+  produced by `scripts/sync-demo-data.js` because GitHub Pages serves only
+  `src/`. Never edit it by hand — change `dataset/` (or the generator) and run
+  `npm run generate:data`. `npm run validate:data` and the test suite both fail
+  if it drifts.
+- The demo picker must keep going through `src/ui/ingest.js`, the same path an
+  uploaded file takes, so the demo can never diverge from real behaviour.
 - Run `npm run validate:data` after touching any file in `dataset/` or
   `fixtures/`. It parses each file with the app's own parsers and reports both
   parse errors and data-quality problems. CI runs it too.

@@ -68,8 +68,8 @@ function formatSector(ms) {
 // --- Lap session -----------------------------------------------------------
 
 /**
- * Driver profiles: pace relative to the track's reference lap, how consistent
- * they are, and how many laps they completed.
+ * Driver profiles for the flagship session: pace relative to the track's
+ * reference lap, how consistent they are, and how many laps they completed.
  */
 const DRIVERS = [
   { name: 'Nina Alvarez', pace: 1.000, spread: 320, laps: 16, note: 'quickest overall' },
@@ -85,18 +85,32 @@ const REFERENCE_LAP_MS = 31_400;
 const SECTOR_SHARE = [0.351, 0.324, 0.325];
 
 /**
- * Builds the demo lap session CSV.
+ * @typedef {Object} RaceSpec
+ * @property {string} file - Output file name inside dataset/.
+ * @property {string} track - Track name written to every row.
+ * @property {string} date - Session date (YYYY-MM-DD).
+ * @property {number} seed - PRNG seed, so output is reproducible.
+ * @property {number} referenceLapMs - Pace of a 1.000 driver.
+ * @property {Array<number>} sectorShare - Fraction of the lap per sector.
+ * @property {Array<{name:string,pace:number,spread:number,laps:number}>} drivers
+ * @property {string} [spinDriver] - Driver given one large off-track moment.
+ * @property {string} description - Human summary, used in the console output.
+ */
+
+/**
+ * Builds a lap session CSV from a race specification.
+ * @param {RaceSpec} race
  * @returns {string} CSV text.
  */
-function buildLapSessionCsv() {
-  const random = createRandom(20260812);
-  const track = 'Fastimes Indoor Karting';
-  const date = '2026-08-08';
+function buildLapSessionCsv(race) {
+  const random = createRandom(race.seed);
+  const track = race.track;
+  const date = race.date;
 
   const rows = [['Track', 'Date', 'Driver', 'Lap', 'Time', 'Sector 1', 'Sector 2', 'Sector 3']];
 
-  for (const driver of DRIVERS) {
-    const base = REFERENCE_LAP_MS * driver.pace;
+  for (const driver of race.drivers) {
+    const base = race.referenceLapMs * driver.pace;
 
     for (let lap = 1; lap <= driver.laps; lap++) {
       // Drivers learn through the session, so early laps are slower.
@@ -109,14 +123,14 @@ function buildLapSessionCsv() {
 
       // One traffic-affected lap per driver, and a spin for the rookie.
       const isTraffic = lap === Math.max(5, Math.floor(driver.laps * 0.45));
-      const isSpin = driver.name === 'Dana Cho' && lap === 7;
+      const isSpin = driver.name === race.spinDriver && lap === 7;
       if (isSpin) lapMs += 9_500;
       else if (isTraffic) lapMs += 1_450;
 
       // Sector split: distribute the lap, then let sectors vary independently
       // while still summing exactly to the lap time.
-      const s1 = lapMs * SECTOR_SHARE[0] + (random() - 0.5) * 180;
-      const s2 = lapMs * SECTOR_SHARE[1] + (random() - 0.5) * 180;
+      const s1 = lapMs * race.sectorShare[0] + (random() - 0.5) * 180;
+      const s2 = lapMs * race.sectorShare[1] + (random() - 0.5) * 180;
       const s3 = lapMs - s1 - s2;
 
       const lapRounded = Math.round(lapMs);
@@ -177,11 +191,12 @@ const CIRCUIT_WAYPOINTS = [
 
 /**
  * Evaluates a closed Catmull-Rom spline through the waypoints.
+ * @param {Array<[number, number]>} waypoints - Closed list of layout points.
  * @param {number} t - Parameter in [0, 1) around the whole loop.
  * @returns {{x:number,y:number}} Metres from the track origin.
  */
-function circuitPoint(t) {
-  const pts = CIRCUIT_WAYPOINTS;
+function circuitPoint(waypoints, t) {
+  const pts = waypoints;
   const n = pts.length;
   const scaled = ((t % 1) + 1) % 1 * n;
   const i = Math.floor(scaled);
@@ -213,9 +228,9 @@ function circuitPoint(t) {
  * @param {number} [samples=4000]
  * @returns {{points:Array<{x:number,y:number,s:number,curvature:number}>,length:number}}
  */
-function buildCentreline(samples = 4000) {
+function buildCentreline(waypoints, samples = 4000) {
   const raw = [];
-  for (let i = 0; i < samples; i++) raw.push(circuitPoint(i / samples));
+  for (let i = 0; i < samples; i++) raw.push(circuitPoint(waypoints, i / samples));
 
   const points = [];
   let s = 0;
@@ -293,13 +308,14 @@ function computeSpeedProfile(points, limits) {
  * Converts local metres to WGS84 degrees around the track origin.
  * @param {number} x - Metres east.
  * @param {number} y - Metres north.
+ * @param {{lat:number,lon:number}} origin - Track origin in WGS84.
  * @returns {{lat:number,lon:number}}
  */
-function toLatLon(x, y) {
-  const lat = TRACK_ORIGIN.lat + (y / EARTH_RADIUS_M) * (180 / Math.PI);
+function toLatLon(x, y, origin) {
+  const lat = origin.lat + (y / EARTH_RADIUS_M) * (180 / Math.PI);
   const lon =
-    TRACK_ORIGIN.lon +
-    (x / (EARTH_RADIUS_M * Math.cos((TRACK_ORIGIN.lat * Math.PI) / 180))) * (180 / Math.PI);
+    origin.lon +
+    (x / (EARTH_RADIUS_M * Math.cos((origin.lat * Math.PI) / 180))) * (180 / Math.PI);
   return { lat, lon };
 }
 
@@ -336,24 +352,34 @@ function sampleAt(points, speeds, distance) {
 }
 
 /**
- * Builds a multi-lap GPX trace by driving the speed profile around the circuit.
- * @returns {{gpx:string,summary:Object}}
+ * @typedef {Object} TraceSpec
+ * @property {string} file - Output file name inside dataset/.
+ * @property {'gpx'|'csv'} format - Output format.
+ * @property {string} name - Circuit name, written to GPX metadata.
+ * @property {number} seed - PRNG seed.
+ * @property {Array<[number, number]>} waypoints - Circuit layout.
+ * @property {{lat:number,lon:number}} origin - Track origin in WGS84.
+ * @property {{vMax:number,aLat:number,aBrake:number,aAccel:number}} limits
+ * @property {Array<number>} lapPace - Pace factor per lap; 1.0 is the quickest.
+ * @property {string} startTime - ISO timestamp of the first sample.
+ * @property {string} description - Human summary for the console output.
  */
-function buildLapTraceGpx() {
-  const random = createRandom(770815);
-  const { points } = buildCentreline();
+
+/**
+ * Builds a multi-lap GPS trace by driving a speed profile around a circuit.
+ * @param {TraceSpec} trace
+ * @returns {{text:string,summary:Object}}
+ */
+function buildLapTrace(trace) {
+  const random = createRandom(trace.seed);
+  const { points } = buildCentreline(trace.waypoints);
   const lapLength = points[points.length - 1].s;
 
-  const speeds = computeSpeedProfile(points, {
-    vMax: 17.2,   // ~62 km/h on the main straight
-    aLat: 7.4,    // lateral grip, so hairpins drop to roughly 25 km/h
-    aBrake: 6.0,
-    aAccel: 3.4,
-  });
+  const speeds = computeSpeedProfile(points, trace.limits);
 
   // Each lap carries a small pace factor, so the ghost replay has a real delta.
-  const lapPace = [1.045, 1.0, 1.017];
-  const startTime = Date.parse('2026-08-08T14:12:30Z');
+  const lapPace = trace.lapPace;
+  const startTime = Date.parse(trace.startTime);
   const dt = 1 / SAMPLE_HZ;
 
   const trkpts = [];
@@ -367,7 +393,7 @@ function buildLapTraceGpx() {
 
     while (distance - lapStartDistance < lapLength) {
       const sample = sampleAt(points, speeds, distance);
-      const { lat, lon } = toLatLon(sample.x, sample.y);
+      const { lat, lon } = toLatLon(sample.x, sample.y, trace.origin);
 
       trkpts.push({
         lat,
@@ -388,7 +414,7 @@ function buildLapTraceGpx() {
 
   // Close the trace back on the start/finish line.
   const closing = sampleAt(points, speeds, 0);
-  const closingLatLon = toLatLon(closing.x, closing.y);
+  const closingLatLon = toLatLon(closing.x, closing.y, trace.origin);
   trkpts.push({
     lat: closingLatLon.lat,
     lon: closingLatLon.lon,
@@ -396,6 +422,38 @@ function buildLapTraceGpx() {
     speed: closing.speed,
   });
 
+  const summary = {
+    lapLength,
+    points: trkpts.length,
+    lapTimes,
+    peakKph: Math.max(...speeds) * 3.6,
+  };
+
+  const text = trace.format === 'csv'
+    ? serializeTraceCsv(trkpts)
+    : serializeTraceGpx(trkpts, trace, lapLength, startTime);
+
+  return { text, summary };
+}
+
+/**
+ * Spells small numbers, so generated descriptions read naturally.
+ * @param {number} n
+ * @returns {string}
+ */
+function numberWord(n) {
+  return ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'][n] || String(n);
+}
+
+/**
+ * Serializes track points as GPX.
+ * @param {Array<{lat:number,lon:number,time:number}>} trkpts
+ * @param {TraceSpec} trace
+ * @param {number} lapLength - Circuit length in metres.
+ * @param {number} startTime - Epoch milliseconds of the first sample.
+ * @returns {string}
+ */
+function serializeTraceGpx(trkpts, trace, lapLength, startTime) {
   const body = trkpts
     .map(
       (p) =>
@@ -405,43 +463,182 @@ function buildLapTraceGpx() {
     )
     .join('\n');
 
-  const gpx =
+  const laps = numberWord(trace.lapPace.length);
+
+  return (
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<gpx version="1.1" creator="Apex demo data generator" xmlns="http://www.topografix.com/GPX/1/1">\n` +
     `  <metadata>\n` +
-    `    <name>Apex demo lap trace</name>\n` +
-    `    <desc>Synthetic three-lap kart telemetry: ${(lapLength).toFixed(0)}m circuit, ` +
+    `    <name>${trace.gpxName}</name>\n` +
+    `    <desc>Synthetic ${laps}-lap kart telemetry: ${lapLength.toFixed(0)}m circuit, ` +
     `${SAMPLE_HZ}Hz sampling.</desc>\n` +
     `    <time>${new Date(startTime).toISOString().replace('.000Z', 'Z')}</time>\n` +
     `  </metadata>\n` +
-    `  <trk>\n    <name>Demo kart session</name>\n    <trkseg>\n${body}\n    </trkseg>\n  </trk>\n</gpx>\n`;
-
-  return {
-    gpx,
-    summary: {
-      lapLength,
-      points: trkpts.length,
-      lapTimes,
-      peakKph: Math.max(...speeds) * 3.6,
-    },
-  };
+    `  <trk>\n    <name>${trace.trkName}</name>\n    <trkseg>\n${body}\n    </trkseg>\n  </trk>\n</gpx>\n`
+  );
 }
+
+/**
+ * Serializes track points as a GPS CSV with millisecond offsets, which is the
+ * other input shape Apex accepts.
+ * @param {Array<{lat:number,lon:number,time:number}>} trkpts
+ * @returns {string}
+ */
+function serializeTraceCsv(trkpts) {
+  const first = trkpts[0].time;
+  const rows = [['Lat', 'Lon', 'Time']];
+  for (const p of trkpts) {
+    rows.push([p.lat.toFixed(7), p.lon.toFixed(7), String(p.time - first)]);
+  }
+  return rows.map((r) => r.join(',')).join('\n') + '\n';
+}
+
+// --- Catalogue -------------------------------------------------------------
+
+/**
+ * Every race written to dataset/. The first entry is the flagship session used
+ * by the README screenshots; the others give the demo picker a real choice.
+ * @type {Array<RaceSpec>}
+ */
+const RACES = [
+  {
+    file: 'demo_session.csv',
+    track: 'Fastimes Indoor Karting',
+    date: '2026-08-08',
+    seed: 20260812,
+    referenceLapMs: REFERENCE_LAP_MS,
+    sectorShare: SECTOR_SHARE,
+    drivers: DRIVERS,
+    spinDriver: 'Dana Cho',
+    description: 'Saturday club sprint, indoor',
+  },
+  {
+    file: 'demo_race_whiteland_sprint.csv',
+    track: 'Whiteland Raceway Park',
+    date: '2026-07-25',
+    seed: 940217,
+    // Outdoor sprint circuit: longer lap, three roughly even sectors.
+    referenceLapMs: 46_800,
+    sectorShare: [0.338, 0.336, 0.326],
+    drivers: [
+      { name: 'Marcus Webb', pace: 1.000, spread: 380 },
+      { name: 'Nina Alvarez', pace: 1.004, spread: 300 },
+      { name: 'Ivan Petrov', pace: 1.014, spread: 610 },
+      { name: 'Sofia Marchetti', pace: 1.022, spread: 450 },
+      { name: 'Tom Okafor', pace: 1.037, spread: 780 },
+    ].map((d) => ({ ...d, laps: 18 })),
+    spinDriver: 'Tom Okafor',
+    description: 'Outdoor sprint round, 5 drivers',
+  },
+  {
+    file: 'demo_race_endurance_night.csv',
+    track: 'Fastimes Indoor Karting',
+    date: '2026-08-11',
+    seed: 551103,
+    // Endurance night: same circuit, longer runs, slightly slower pace on
+    // worn tyres.
+    referenceLapMs: 31_950,
+    sectorShare: [0.349, 0.326, 0.325],
+    drivers: [
+      { name: 'Priya Raman', pace: 1.000, spread: 420, laps: 26 },
+      { name: 'Nina Alvarez', pace: 1.003, spread: 350, laps: 26 },
+      { name: 'Jesse Lund', pace: 1.011, spread: 690, laps: 25 },
+      { name: 'Dana Cho', pace: 1.020, spread: 730, laps: 24 },
+      { name: 'Marcus Webb', pace: 1.026, spread: 300, laps: 24 },
+      { name: 'Hana Suzuki', pace: 1.034, spread: 560, laps: 23 },
+    ],
+    spinDriver: 'Jesse Lund',
+    description: 'Endurance night, 6 drivers',
+  },
+];
+
+/**
+ * A tighter, technical layout used for the second trace: more low-speed corners
+ * and a shorter lap than the sprint circuit.
+ * @type {Array<[number, number]>}
+ */
+const TECHNICAL_WAYPOINTS = [
+  [0, 0],        // start/finish, short straight
+  [58, 4],
+  [104, 24],     // turn 1, medium right
+  [112, 60],
+  [86, 78],      // hairpin
+  [56, 62],
+  [30, 78],      // first ess
+  [4, 62],
+  [-22, 82],     // second ess
+  [-54, 74],
+  [-70, 44],     // tight left onto the back section
+  [-44, 26],
+  [-62, 2],      // slowest corner on the lap
+  [-30, -12],
+];
+
+/**
+ * Every GPS trace written to dataset/. The first entry is the flagship trace
+ * used by the README screenshots.
+ * @type {Array<TraceSpec>}
+ */
+const TRACES = [
+  {
+    file: 'demo_lap_trace.gpx',
+    format: 'gpx',
+    gpxName: 'Apex demo lap trace',
+    trkName: 'Demo kart session',
+    seed: 770815,
+    waypoints: CIRCUIT_WAYPOINTS,
+    origin: TRACK_ORIGIN,
+    limits: {
+      vMax: 17.2,   // ~62 km/h on the main straight
+      aLat: 7.4,    // lateral grip, so hairpins drop to roughly 25 km/h
+      aBrake: 6.0,
+      aAccel: 3.4,
+    },
+    lapPace: [1.045, 1.0, 1.017],
+    startTime: '2026-08-08T14:12:30Z',
+    description: 'Sprint circuit, 3 laps, GPX',
+  },
+  {
+    file: 'demo_technical_trace.csv',
+    format: 'csv',
+    gpxName: 'Apex demo technical trace',
+    trkName: 'Demo kart session, technical layout',
+    seed: 331199,
+    waypoints: TECHNICAL_WAYPOINTS,
+    origin: { lat: 39.7318, lon: -86.2588 },
+    limits: {
+      vMax: 15.4,   // ~55 km/h, shorter straights
+      aLat: 7.0,
+      aBrake: 5.8,
+      aAccel: 3.2,
+    },
+    lapPace: [1.038, 1.0, 1.012, 1.026],
+    startTime: '2026-08-11T19:04:10Z',
+    description: 'Technical layout, 4 laps, GPS CSV',
+  },
+];
 
 // --- Write -----------------------------------------------------------------
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
-const csv = buildLapSessionCsv();
-fs.writeFileSync(path.join(OUT_DIR, 'demo_session.csv'), csv);
-console.log(
-  `dataset/demo_session.csv: ${csv.trim().split('\n').length - 1} laps, ${DRIVERS.length} drivers`
-);
+for (const race of RACES) {
+  const csv = buildLapSessionCsv(race);
+  fs.writeFileSync(path.join(OUT_DIR, race.file), csv);
+  const laps = csv.trim().split('\n').length - 1;
+  console.log(
+    `dataset/${race.file}: ${laps} laps, ${race.drivers.length} drivers ` +
+      `(${race.description})`
+  );
+}
 
-const { gpx, summary } = buildLapTraceGpx();
-fs.writeFileSync(path.join(OUT_DIR, 'demo_lap_trace.gpx'), gpx);
-console.log(
-  `dataset/demo_lap_trace.gpx: ${summary.points} points, ` +
-    `${summary.lapLength.toFixed(0)}m lap, ` +
-    `laps ${summary.lapTimes.map((t) => t.toFixed(1) + 's').join(' / ')}, ` +
-    `peak ${summary.peakKph.toFixed(1)} km/h`
-);
+for (const trace of TRACES) {
+  const { text, summary } = buildLapTrace(trace);
+  fs.writeFileSync(path.join(OUT_DIR, trace.file), text);
+  console.log(
+    `dataset/${trace.file}: ${summary.points} points, ` +
+      `${summary.lapLength.toFixed(0)}m lap, ` +
+      `laps ${summary.lapTimes.map((t) => t.toFixed(1) + 's').join(' / ')}, ` +
+      `peak ${summary.peakKph.toFixed(1)} km/h (${trace.description})`
+  );
+}

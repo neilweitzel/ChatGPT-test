@@ -5,9 +5,10 @@
   "scripts": {
     "start": "npx serve src -p 3000",
     "test": "playwright test",
-    "validate:data": "node scripts/validate-dataset.js",
-    "generate:data": "node scripts/generate-demo-data.js",
-    "screenshots": "playwright test --config playwright.screenshots.config.js"
+    "validate:data": "node scripts/validate-dataset.js && node scripts/sync-demo-data.js --check",
+    "generate:data": "node scripts/generate-demo-data.js && node scripts/sync-demo-data.js",
+    "screenshots": "playwright test --config playwright.screenshots.config.js",
+    "sync:demo": "node scripts/sync-demo-data.js"
   },
   "repository": {
     "type": "git",
