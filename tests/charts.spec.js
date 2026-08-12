@@ -25,13 +25,13 @@ test.describe('Charts rendering', () => {
   });
 
   test('should render lap trace and sector delta charts', async ({ page }) => {
-    const filePath = path.join(__dirname, '../fixtures/leaderboard_test.csv');
+    const filePath = path.join(__dirname, '../dataset/test_data.csv');
 
     // Instead of fetch, let's read file in node and pass content to page.
     const csvContent = fs.readFileSync(filePath, 'utf-8');
 
     await page.evaluate((content) => {
-      const file = new File([content], 'leaderboard_test.csv', { type: 'text/csv' });
+      const file = new File([content], 'test_data.csv', { type: 'text/csv' });
       const dt = new DataTransfer();
       dt.items.add(file);
       const dropzone = document.getElementById('dropzone');
@@ -52,11 +52,11 @@ test.describe('Charts rendering', () => {
     const selA = page.locator('.chart-controls select').nth(0);
     const selB = page.locator('.chart-controls select').nth(1);
 
-    await selA.selectOption('Alice');
-    await selB.selectOption('Bob');
+    await selA.selectOption('Mario');
+    await selB.selectOption('Luigi');
 
     // Check if the title updated
-    await expect(page.locator('h4', { hasText: 'Sector Delta: Alice vs Bob' })).toBeVisible();
+    await expect(page.locator('h4', { hasText: 'Sector Delta: Mario vs Luigi' })).toBeVisible();
 
     // Visual Regression test
     const chartsSection = page.locator('.charts-section');

@@ -164,6 +164,10 @@ export function parseCSV(text) {
  * @returns {Array<string>} An array of parsed string values for the line's columns.
  */
 function parseCSVLine(line) {
+  if (!line.includes('"')) {
+    return line.split(',');
+  }
+
   const result = [];
   let current = '';
   let inQuotes = false;

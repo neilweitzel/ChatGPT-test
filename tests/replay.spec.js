@@ -66,5 +66,11 @@ test.describe('Replay Ghost Sync', () => {
 
     // Since we mocked data (or loaded sample), the delta shouldn't be NaN
     expect(newText).not.toContain('NaN');
+
+    // Visual Regression test for map/replay
+    const mapReplaySection = page.locator('.replay-controls').locator('..');
+    await expect(mapReplaySection).toHaveScreenshot('map-replay-screenshot.png', {
+      maxDiffPixelRatio: 0.1
+    });
   });
 });
