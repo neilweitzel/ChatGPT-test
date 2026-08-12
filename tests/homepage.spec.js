@@ -18,7 +18,7 @@ test.describe('Homepage', () => {
     await expect(viewportMeta).toHaveAttribute('content', 'width=device-width, initial-scale=1.0');
 
     const cspMeta = page.locator('meta[http-equiv="Content-Security-Policy"]');
-    await expect(cspMeta).toHaveAttribute('content', "default-src 'self';");
+    await expect(cspMeta).toHaveAttribute('content', "default-src 'self'; style-src 'self' 'unsafe-inline';");
 
     const stylesheetLink = page.locator('link[rel="stylesheet"]');
     await expect(stylesheetLink).toHaveAttribute('href', 'styles/style.css');

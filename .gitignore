@@ -4,3 +4,5 @@ test-results/
 playwright-report/
 serve.log
 server.log
+playwright-report/
+test-results/
