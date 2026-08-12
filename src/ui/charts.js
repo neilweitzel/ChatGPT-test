@@ -80,8 +80,12 @@ export function renderCharts(container, session, stats) {
   deltaContainer.className = 'chart-wrapper';
   section.appendChild(deltaContainer);
 
+  // Qualitative palette chosen so every series stays visible on a white
+  // background. Bright yellow was removed: it was effectively invisible both as
+  // a line and as a legend label.
   const colors = [
-    '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999'
+    '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00',
+    '#00838f', '#a65628', '#c2185b', '#5d4037'
   ];
 
   const updateCharts = () => {
@@ -231,13 +235,26 @@ function renderLapTraceChart(container, session, stats, colors) {
       svg.insertBefore(path, svg.firstChild); // Put path behind circles
     }
 
-    // Legend
+    // Legend: a colour swatch plus a dark label, so the text stays readable
+    // regardless of how light the series colour is.
     const legendY = margin.top + (driverIdx - 1) * 20;
+    const legendX = margin.left + chartWidth + 10;
+
+    const swatch = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    swatch.setAttribute('x', legendX);
+    swatch.setAttribute('y', legendY - 4);
+    swatch.setAttribute('width', '10');
+    swatch.setAttribute('height', '10');
+    swatch.setAttribute('rx', '2');
+    swatch.setAttribute('fill', color);
+    swatch.classList.add('chart-legend-swatch');
+    svg.appendChild(swatch);
+
     const legendText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    legendText.setAttribute('x', margin.left + chartWidth + 10);
+    legendText.setAttribute('x', legendX + 15);
     legendText.setAttribute('y', legendY + 5);
-    legendText.setAttribute('fill', color);
     legendText.setAttribute('font-size', '12px');
+    legendText.classList.add('chart-legend-label');
     legendText.textContent = driver;
     svg.appendChild(legendText);
   });
