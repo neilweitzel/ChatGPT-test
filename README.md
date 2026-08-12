@@ -5,8 +5,6 @@ export into the browser and it parses the data, ranks the drivers, charts their
 laps, and draws the track from GPS telemetry — with no server, no build step,
 and no data leaving the machine.
 
-![Apex overview](docs/screenshots/overview.png)
-
 ## Features
 
 - **Local CSV Upload:** Process telemetry data entirely on the client.
