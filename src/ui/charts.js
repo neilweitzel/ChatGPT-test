@@ -166,8 +166,6 @@ function renderLapTraceChart(container, session, stats, colors) {
 
   const tooltip = document.createElement('div');
   tooltip.className = 'chart-tooltip';
-  tooltip.style.display = 'none';
-  tooltip.style.position = 'absolute';
   document.body.appendChild(tooltip);
 
   driverData.forEach((laps, driver) => {
@@ -197,33 +195,30 @@ function renderLapTraceChart(container, session, stats, colors) {
          circle.setAttribute('opacity', 0.5);
       }
 
-      circle.addEventListener('mouseenter', (e) => {
-         tooltip.style.display = 'block';
-
+      circle.addEventListener('mouseenter', () => {
          const strong = document.createElement('strong');
          strong.textContent = driver;
 
-         tooltip.innerHTML = '';
-         tooltip.appendChild(strong);
+         tooltip.replaceChildren(strong);
 
-         const textNode = document.createTextNode(
-           `\nLap: ${idx + 1}\nTime: ${formatTime(lap.time)}` +
+         const details = `\nLap: ${idx + 1}\nTime: ${formatTime(lap.time)}` +
            (isOutlier ? ' (Outlier)' : '') +
-           (lap.sectors ? `\nS1: ${formatTime(lap.sectors[0])}\nS2: ${formatTime(lap.sectors[1])}\nS3: ${formatTime(lap.sectors[2])}` : '')
-         );
+           (lap.sectors ? `\nS1: ${formatTime(lap.sectors[0])}\nS2: ${formatTime(lap.sectors[1])}\nS3: ${formatTime(lap.sectors[2])}` : '');
 
-         // Convert newlines to br
-         textNode.textContent.split('\n').forEach(part => {
+         // Render newline-separated details as line breaks.
+         details.split('\n').forEach(part => {
              tooltip.appendChild(document.createTextNode(part));
              tooltip.appendChild(document.createElement('br'));
          });
+
+         tooltip.classList.add('visible');
       });
       circle.addEventListener('mousemove', (e) => {
          tooltip.style.left = (e.pageX + 10) + 'px';
          tooltip.style.top = (e.pageY + 10) + 'px';
       });
       circle.addEventListener('mouseleave', () => {
-         tooltip.style.display = 'none';
+         tooltip.classList.remove('visible');
       });
 
       svg.appendChild(circle);

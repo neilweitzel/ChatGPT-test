@@ -26,12 +26,34 @@
                 <li><strong>Local CSV Upload:</strong> Process telemetry data entirely on the client.</li>
                 <li><strong>Dynamic Leaderboard:</strong> View best laps, theoretical bests, median lap times, and consistency scores.</li>
                 <li><strong>Visualizations:</strong> Compare driver performance through lap trace and sector delta charts.</li>
+                <li><strong>Track Map Rendering:</strong> Visualize track maps derived from telemetry data.</li>
+                <li><strong>GPX and GPS CSV Parsing:</strong> Import raw GPS telemetry files.</li>
+                <li><strong>Speed Gradients:</strong> View speed differences visually on the track map.</li>
+                <li><strong>Ghost Sync Replay:</strong> Replay and compare laps simultaneously.</li>
             </ul>
         </section>
         <!-- Application Section -->
         <section class="upload">
-            <div id="dropzone">Drop CSV here</div>
+            <h2>Upload Telemetry</h2>
+            <p class="upload-hint">Drop a lap-time CSV or a GPS trace (<code>.gpx</code>, or CSV with Lat, Lon, Time) below, or choose a file. Everything is processed in your browser.</p>
+            <div id="dropzone" role="button" tabindex="0" aria-label="Drop a telemetry file here">Drop CSV here</div>
+            <div class="upload-actions">
+                <input id="file-input" type="file" accept=".csv,.gpx,text/csv,application/gpx+xml">
+                <label class="file-label" for="file-input">Choose file</label>
+            </div>
+            <p id="upload-status" class="upload-status" role="status" aria-live="polite"></p>
+            <div id="parse-errors" class="parse-errors" hidden></div>
+        </section>
+        <!-- Leaderboard & Charts -->
+        <section class="results-section">
             <div id="results"></div>
+        </section>
+        <!-- Track Map, Speed Gradient & Ghost Replay -->
+        <section class="map-section">
+            <h2>Track Map &amp; Replay</h2>
+            <div id="map-panel">
+                <p class="map-empty">Upload a GPX file or a GPS CSV to render the track map, speed gradient, and ghost sync replay.</p>
+            </div>
         </section>
     </main>
     <!-- Footer Section -->

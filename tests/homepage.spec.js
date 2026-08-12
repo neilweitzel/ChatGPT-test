@@ -50,10 +50,15 @@ test.describe('Homepage', () => {
     await expect(featuresSection.locator('h2')).toHaveText('Features');
 
     const listItems = featuresSection.locator('ul li');
+    // These must stay in sync with the Features list in README.md.
     const expectedTexts = [
       'Local CSV Upload:',
       'Dynamic Leaderboard:',
-      'Visualizations:'
+      'Visualizations:',
+      'Track Map Rendering:',
+      'GPX and GPS CSV Parsing:',
+      'Speed Gradients:',
+      'Ghost Sync Replay:'
     ];
     await expect(listItems).toHaveCount(expectedTexts.length);
     await Promise.all(

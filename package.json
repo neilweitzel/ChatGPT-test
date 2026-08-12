@@ -1,15 +1,21 @@
 {
-  "name": "app",
+  "name": "apex",
   "version": "1.0.0",
-  "description": "Testing Codex",
+  "description": "Apex - a client-side karting telemetry and leaderboard app",
   "scripts": {
+    "start": "npx serve src -p 3000",
     "test": "playwright test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/neilweitzel/ChatGPT-test.git"
   },
-  "keywords": [],
+  "keywords": [
+    "karting",
+    "telemetry",
+    "leaderboard",
+    "gpx"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",

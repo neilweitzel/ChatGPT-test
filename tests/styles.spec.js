@@ -60,6 +60,7 @@ test.describe('Computed Styles', () => {
     // Wait for leaderboard to render to ensure screenshot has the data
     await expect(page.locator('table.leaderboard-table')).toBeVisible();
 
-    await expect(page).toHaveScreenshot('homepage.png');
+    // Full page so the baseline doubles as the README screenshot.
+    await expect(page).toHaveScreenshot('homepage.png', { fullPage: true });
   });
 });
