@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  # Allows a redeploy of the current main without pushing a commit.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,7 +17,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Never publish a build that does not pass its own tests.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Validate telemetry data
+        # --if-present so this stays green on revisions that predate the script.
+        run: npm run validate:data --if-present
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npm test
+      - name: Upload HTML report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-deploy
+          path: playwright-report/
+          retention-days: 30
+
   deploy:
+    needs: verify
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -25,9 +60,15 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          # Enable Pages on first run instead of failing with
+          # "Get Pages site failed", which is what happened before Pages was
+          # switched to the GitHub Actions source by hand.
+          enablement: true
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # The app is served straight from src/; there is no build step.
           path: './src'
       - name: Deploy to GitHub Pages
         id: deployment

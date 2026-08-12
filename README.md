@@ -5,6 +5,9 @@ export into the browser and it parses the data, ranks the drivers, charts their
 laps, and draws the track from GPS telemetry — with no server, no build step,
 and no data leaving the machine.
 
+**[Open the live app](https://neilweitzel.github.io/Apex-Race-Telemetry/)** — then
+upload one of the demo files from `dataset/` to populate it.
+
 ## Features
 
 - **Local CSV Upload:** Process telemetry data entirely on the client.
@@ -157,6 +160,14 @@ after a UI change with:
 ```bash
 npm run screenshots
 ```
+
+## Deployment
+
+Pushing to `main` publishes `src/` to GitHub Pages through
+`.github/workflows/deploy.yml`, which serves the live app linked above. The
+workflow validates the telemetry data and runs the full test suite before
+publishing, so a failing build never reaches the site, and it can be run from the
+Actions tab to redeploy the current `main` without a new commit.
 
 ## Project Structure
 
